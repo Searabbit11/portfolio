@@ -4,7 +4,7 @@
     "name": "신지원",
     "nameEn": "SHIN JIWON",
     "headline": "Unity 클라이언트 프로그래머",
-    "intro": "6개월간의 Unity/C# 게임 개발 교육을 수료하고, 슈퍼센트에서 Unity 클라이언트 개발 인턴으로 근무했습니다(2026.06.15~09.11).\n개인 프로젝트로 3D 생존·공장 자동화 게임과 2D 액션 게임을 개발했습니다.\n4인 AR 프로젝트에서는 팀장·PM으로 Firebase 연동, 랭킹, 게임 진행을 맡고 일정과 Git 작업을 관리했습니다.",
+    "intro": "6개월간의 Unity/C# 게임 개발 교육을 수료하고, 슈퍼센트에서 Unity 클라이언트 개발 인턴으로 근무했습니다(2026.06.15~09.11).\n개인 프로젝트로 3D 생존·공장 자동화 게임과 2D 액션 게임을 개발했습니다.\n4인 AR 프로젝트에서 공간 스캔, 게임 상태 전환, 청소 판정·물 자원과 Firebase 랭킹을 구현했습니다. 팀장·PM으로 일정과 Git 병합도 관리했습니다.",
     "email": "jiwon0077220@gmail.com",
     "github": "https://github.com/Searabbit11",
     "links": []
@@ -26,7 +26,7 @@
           "project": "2-attack-roguelike"
         },
         {
-          "text": "게임 상태에 따른 준비·플레이·결과 화면 전환",
+          "text": "AR Foundation 평면 스캔과 AABB 기반 면적 계산",
           "project": "4-ar-room"
         },
         {
@@ -47,7 +47,7 @@
           "project": "2-attack-roguelike"
         },
         {
-          "text": "준비·진행·결과를 나눈 게임 상태 관리",
+          "text": "인게임 상태 전환, 청소 판정 간격과 물 자원 처리",
           "project": "4-ar-room"
         },
         {
@@ -69,7 +69,7 @@
       "name": "Firebase",
       "evidence": [
         {
-          "text": "Firebase에 저장된 최고 기록을 랭킹에 표시",
+          "text": "인증 초기화 후 Firestore bestScore 기준 랭킹 조회",
           "project": "4-ar-room"
         }
       ]
