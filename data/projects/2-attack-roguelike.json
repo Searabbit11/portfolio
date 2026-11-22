@@ -1,0 +1,553 @@
+{
+  "id": "2-attack-roguelike",
+  "doc": "기술문서.md",
+  "schemaVersion": 2,
+  "title": "Attack-Roguelike",
+  "tagline": "빠른 이동과 콤보 전투로 적을 처치하는 2D 액션 플랫포머",
+  "cover": "images/cover.png",
+  "intent": {
+    "text": "이동·점프·대시와 콤보 공격의 조작감을 조정하는 데 집중했습니다. 이동 속도와 충돌 거리를 직접 제어하도록 Raycast 기반 이동을 구현했습니다.",
+    "verbatim": false
+  },
+  "team": {
+    "type": "solo",
+    "size": "1인",
+    "role": "이동·충돌, 콤보 전투, 적 AI, 피격 효과와 스테이지 진행 개발"
+  },
+  "meta": [
+    {
+      "label": "장르",
+      "value": "2D 액션 플랫포머 로그라이크"
+    },
+    {
+      "label": "기간",
+      "value": "2025.12 · 10일"
+    },
+    {
+      "label": "인원",
+      "value": "1인 개발"
+    },
+    {
+      "label": "환경",
+      "value": "Unity 6000.3.2f1, C#, Rider"
+    }
+  ],
+  "tags": [
+    "Unity 6.3",
+    "C#",
+    "RaycastHit2D",
+    "FSM",
+    "Animation Event",
+    "Hit Stop"
+  ],
+  "links": {
+    "github": "https://github.com/Searabbit11/Attack-Roguelike",
+    "video": "https://youtu.be/AbxDOZJ2oMo"
+  },
+  "highlights": [
+    {
+      "title": "Raycast 기반 이동·충돌",
+      "section": "3.1 Raycast 기반 이동과 충돌",
+      "what": "이동량과 중력을 계산하고, 충돌면 앞에서 이동 거리를 제한합니다.",
+      "how": "Raycast로 충돌면까지의 거리를 구하고 wallSkin만큼 간격을 남깁니다.",
+      "why": "이동 수치를 직접 조정하고 벽에 파고드는 문제를 보정하기 위해 사용했습니다.",
+      "image": {
+        "src": "images/movement.png",
+        "w": 545,
+        "h": 316,
+        "caption": {
+          "text": "이동·충돌 확인 화면",
+          "verbatim": true
+        }
+      }
+    },
+    {
+      "title": "콤보와 타격 반응",
+      "section": "3.2 콤보·대시와 타격 피드백",
+      "what": "콤보 공격과 대시를 구현하고 타격 시 Hit Stop·넉백·피격 효과를 적용했습니다.",
+      "how": "Animation Event로 공격 판정 시점을 맞추고, 대시에는 쿨타임과 무적 시간을 적용합니다.",
+      "why": "공격이 적중했는지 시간 정지와 시각 효과, 넉백으로 보여줍니다.",
+      "image": {
+        "src": "images/cover.png",
+        "w": 540,
+        "h": 358,
+        "caption": {
+          "text": "콤보와 피격 효과",
+          "verbatim": true
+        }
+      }
+    },
+    {
+      "title": "적 FSM과 스테이지 진행",
+      "section": "3.3 적 FSM과 스테이지 진행",
+      "what": "적이 거리와 공격 범위에 따라 행동하고, 모두 처치하면 다음 단계가 열립니다.",
+      "how": "상태별 코루틴을 실행하고, 사망 이벤트로 남은 적 수와 UI를 갱신합니다.",
+      "why": "적의 행동·피격 처리와 스테이지 진행을 나눠 관리했습니다.",
+      "image": {
+        "src": "images/enemy-flow.png",
+        "w": 640,
+        "h": 571,
+        "caption": {
+          "text": "적의 인식·공격 범위",
+          "verbatim": true
+        }
+      }
+    }
+  ],
+  "troubleshooting": [
+    {
+      "title": "벽면 끼임과 떨림",
+      "section": "4.1 벽면 끼임과 떨림",
+      "problem": "벽에 밀착할 때 캐릭터가 미세하게 파고들거나 중력 처리와 겹쳐 떨리는 현상이 발생했습니다.",
+      "cause": "충돌면까지의 거리를 그대로 이동량으로 사용해 벽과 맞닿는 경계에서 수치 오차가 발생했습니다.",
+      "solution": "이동 거리를 충돌면까지의 거리에서 wallSkin을 뺀 값으로 제한했습니다. 이미 벽에 너무 가까우면 반대 방향으로 위치를 보정했습니다.",
+      "result": "플레이어와 적이 벽과 작은 간격을 유지하도록 충돌 처리를 수정했습니다.",
+      "lesson": ""
+    },
+    {
+      "title": "한 적의 피격 효과가 모든 적에게 적용되는 문제",
+      "section": "4.2 한 적의 피격 효과가 모든 적에게 적용되는 문제",
+      "problem": "적 하나를 타격했을 때 다른 적들도 함께 하얗게 표시됐습니다.",
+      "cause": "같은 머티리얼을 공유하는 상태에서 피격 셰이더의 프로퍼티를 변경했습니다.",
+      "solution": "EnemyHealth를 초기화할 때 sharedMaterial을 복제해 각 적의 SpriteRenderer에 할당했습니다.",
+      "result": "공유 머티리얼 대신 적마다 별도의 머티리얼에서 피격 효과를 처리하도록 바꿨습니다.",
+      "lesson": ""
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "images/movement.png",
+      "w": 545,
+      "h": 316,
+      "caption": "이동·충돌 확인 화면"
+    },
+    {
+      "src": "images/jump.png",
+      "w": 276,
+      "h": 303,
+      "caption": "점프 동작"
+    },
+    {
+      "src": "images/enemy-flow.png",
+      "w": 640,
+      "h": 571,
+      "caption": "적의 인식·공격 범위"
+    }
+  ],
+  "retro": {
+    "section": "5. 결과",
+    "achieved": [
+      "이동·점프·대시와 콤보 공격, Hit Stop·넉백을 구현했습니다.",
+      "벽면 충돌을 보정하고, 피격 효과가 다른 적에게 번지던 머티리얼 문제를 수정했습니다.",
+      "적의 사망에 따라 남은 적 수와 UI를 갱신하고 다음 스테이지를 열도록 했습니다."
+    ],
+    "regrets": [],
+    "plans": []
+  },
+  "deck": {
+    "chapters": [
+      {
+        "key": "intro",
+        "title": "개요",
+        "sectionPath": [
+          "1. 개요"
+        ]
+      },
+      {
+        "key": "architecture",
+        "title": "시스템 구조",
+        "sectionPath": [
+          "2. 시스템 구조"
+        ]
+      },
+      {
+        "key": "systems",
+        "title": "핵심 기능",
+        "sectionPath": [
+          "3. 핵심 기능"
+        ]
+      },
+      {
+        "key": "issues",
+        "title": "문제 해결",
+        "sectionPath": [
+          "4. 문제 해결"
+        ]
+      },
+      {
+        "key": "results",
+        "title": "결과",
+        "sectionPath": [
+          "5. 결과"
+        ]
+      }
+    ],
+    "slides": [
+      {
+        "key": "intro-part-1-overview",
+        "chapter": "intro",
+        "layout": "overview",
+        "tab": "구현",
+        "title": {
+          "text": "게임과 개발 목표",
+          "verbatim": true
+        },
+        "lead": {
+          "text": "Skul에서 영감을 받은 2D 액션 플랫포머입니다.",
+          "verbatim": true
+        },
+        "sectionPath": [
+          "1. 개요",
+          "1.1 게임과 개발 목표"
+        ],
+        "points": [
+          {
+            "label": "구현",
+            "text": "스테이지의 적을 모두 처치하면 다음 단계가 열리고, Day가 지날수록 적이 강해집니다.",
+            "verbatim": true
+          }
+        ],
+        "visuals": []
+      },
+      {
+        "key": "architecture-part-2-figure-1",
+        "chapter": "architecture",
+        "layout": "full",
+        "tab": "구조",
+        "title": {
+          "text": "전투와 진행의 연결",
+          "verbatim": true
+        },
+        "lead": {
+          "text": "공격으로 적이 사망하면 StageProgressManager가 남은 적 수를 갱신합니다.",
+          "verbatim": true
+        },
+        "sectionPath": [
+          "2. 시스템 구조",
+          "2.1 전투와 진행의 연결"
+        ],
+        "points": [],
+        "visuals": [
+          {
+            "kind": "mermaid",
+            "n": 1,
+            "fp": "flowchart LR"
+          }
+        ]
+      },
+      {
+        "key": "architecture-part-2-figure-2",
+        "chapter": "architecture",
+        "layout": "full",
+        "tab": "구조",
+        "title": {
+          "text": "전투와 진행의 연결",
+          "verbatim": true
+        },
+        "lead": {
+          "text": "UI에는 변경된 적 수를 알리고, 모두 처치했을 때 클리어 이벤트를 보냅니다.",
+          "verbatim": true
+        },
+        "sectionPath": [
+          "2. 시스템 구조",
+          "2.1 전투와 진행의 연결"
+        ],
+        "points": [],
+        "visuals": [
+          {
+            "kind": "table",
+            "n": 1,
+            "fp": "구성요소|책임"
+          }
+        ]
+      },
+      {
+        "key": "systems-part-3-screens",
+        "chapter": "systems",
+        "layout": "screens",
+        "tab": "구현",
+        "title": {
+          "text": "Raycast 기반 이동과 충돌",
+          "verbatim": true
+        },
+        "lead": {
+          "text": "이동량과 중력을 계산한 뒤, 이동 방향으로 Raycast를 쏴 충돌면까지의 거리 안에서 움직이게 했습니다.",
+          "verbatim": true
+        },
+        "sectionPath": [
+          "3. 핵심 기능",
+          "3.1 Raycast 기반 이동과 충돌"
+        ],
+        "points": [],
+        "visuals": [
+          {
+            "kind": "image",
+            "src": "images/movement.png",
+            "w": 545,
+            "h": 316,
+            "caption": {
+              "text": "이동·충돌 확인 화면",
+              "verbatim": true
+            }
+          },
+          {
+            "kind": "image",
+            "src": "images/jump.png",
+            "w": 276,
+            "h": 303,
+            "caption": {
+              "text": "점프 동작",
+              "verbatim": true
+            }
+          }
+        ]
+      },
+      {
+        "key": "systems-part-3-code-1",
+        "chapter": "systems",
+        "layout": "code",
+        "tab": "구현",
+        "title": {
+          "text": "Raycast 기반 이동과 충돌",
+          "verbatim": true
+        },
+        "lead": {
+          "text": "벽과 캐릭터 사이에는 wallSkin만큼 간격을 두어 부동소수점 오차로 벽 안에 파고드는 문제를 보정했습니다.",
+          "verbatim": true
+        },
+        "sectionPath": [
+          "3. 핵심 기능",
+          "3.1 Raycast 기반 이동과 충돌"
+        ],
+        "points": [],
+        "visuals": [
+          {
+            "kind": "code",
+            "n": 1,
+            "fp": "if (distToWall <= wallSkin)"
+          }
+        ]
+      },
+      {
+        "key": "systems-part-4-screens",
+        "chapter": "systems",
+        "layout": "visual",
+        "tab": "구현",
+        "title": {
+          "text": "콤보·대시와 타격 피드백",
+          "verbatim": true
+        },
+        "lead": {
+          "text": "콤보 공격의 타격 시점은 Animation Event로 처리하고, 대시에는 쿨타임과 무적 시간을 적용했습니다.",
+          "verbatim": true
+        },
+        "sectionPath": [
+          "3. 핵심 기능",
+          "3.2 콤보·대시와 타격 피드백"
+        ],
+        "points": [],
+        "visuals": [
+          {
+            "kind": "image",
+            "src": "images/cover.png",
+            "w": 540,
+            "h": 358,
+            "caption": {
+              "text": "콤보와 피격 효과",
+              "verbatim": true
+            }
+          }
+        ]
+      },
+      {
+        "key": "systems-part-5-screens",
+        "chapter": "systems",
+        "layout": "visual",
+        "tab": "구현",
+        "title": {
+          "text": "적 FSM과 스테이지 진행",
+          "verbatim": true
+        },
+        "lead": {
+          "text": "적은 플레이어와의 거리와 공격 범위에 따라 대기·순찰·추적·공격 상태를 오갑니다.",
+          "verbatim": true
+        },
+        "sectionPath": [
+          "3. 핵심 기능",
+          "3.3 적 FSM과 스테이지 진행"
+        ],
+        "points": [],
+        "visuals": [
+          {
+            "kind": "image",
+            "src": "images/enemy-flow.png",
+            "w": 640,
+            "h": 571,
+            "caption": {
+              "text": "적의 인식·공격 범위",
+              "verbatim": true
+            }
+          }
+        ]
+      },
+      {
+        "key": "systems-part-5-code-1",
+        "chapter": "systems",
+        "layout": "code",
+        "tab": "구현",
+        "title": {
+          "text": "적 FSM과 스테이지 진행",
+          "verbatim": true
+        },
+        "lead": {
+          "text": "사망하면 StageProgressManager에 알려 남은 적 수를 줄입니다.",
+          "verbatim": true
+        },
+        "sectionPath": [
+          "3. 핵심 기능",
+          "3.3 적 FSM과 스테이지 진행"
+        ],
+        "points": [],
+        "visuals": [
+          {
+            "kind": "code",
+            "n": 1,
+            "fp": "public void OnEnemyDead()"
+          }
+        ]
+      },
+      {
+        "key": "issues-part-6-problem",
+        "chapter": "issues",
+        "layout": "problem",
+        "tab": "문제 해결",
+        "title": {
+          "text": "벽면 끼임과 떨림",
+          "verbatim": true
+        },
+        "lead": null,
+        "sectionPath": [
+          "4. 문제 해결",
+          "4.1 벽면 끼임과 떨림"
+        ],
+        "points": [
+          {
+            "label": "문제",
+            "text": "벽에 밀착할 때 캐릭터가 미세하게 파고들거나 중력 처리와 겹쳐 떨리는 현상이 발생했습니다.",
+            "verbatim": true
+          },
+          {
+            "label": "원인",
+            "text": "충돌면까지의 거리를 그대로 이동량으로 사용해 벽과 맞닿는 경계에서 수치 오차가 발생했습니다.",
+            "verbatim": true
+          },
+          {
+            "label": "해결",
+            "text": "이동 거리를 충돌면까지의 거리에서 wallSkin을 뺀 값으로 제한했습니다. 이미 벽에 너무 가까우면 반대 방향으로 위치를 보정했습니다.",
+            "verbatim": true
+          },
+          {
+            "label": "결과",
+            "text": "플레이어와 적이 벽과 작은 간격을 유지하도록 충돌 처리를 수정했습니다.",
+            "verbatim": true
+          }
+        ],
+        "visuals": []
+      },
+      {
+        "key": "issues-part-7-problem",
+        "chapter": "issues",
+        "layout": "problem",
+        "tab": "문제 해결",
+        "title": {
+          "text": "한 적의 피격 효과가 모든 적에게 적용되는 문제",
+          "verbatim": true
+        },
+        "lead": null,
+        "sectionPath": [
+          "4. 문제 해결",
+          "4.2 한 적의 피격 효과가 모든 적에게 적용되는 문제"
+        ],
+        "points": [
+          {
+            "label": "문제",
+            "text": "적 하나를 타격했을 때 다른 적들도 함께 하얗게 표시됐습니다.",
+            "verbatim": true
+          },
+          {
+            "label": "원인",
+            "text": "같은 머티리얼을 공유하는 상태에서 피격 셰이더의 프로퍼티를 변경했습니다.",
+            "verbatim": true
+          },
+          {
+            "label": "해결",
+            "text": "EnemyHealth를 초기화할 때 sharedMaterial을 복제해 각 적의 SpriteRenderer에 할당했습니다.",
+            "verbatim": true
+          },
+          {
+            "label": "결과",
+            "text": "공유 머티리얼 대신 적마다 별도의 머티리얼에서 피격 효과를 처리하도록 바꿨습니다.",
+            "verbatim": true
+          }
+        ],
+        "visuals": []
+      },
+      {
+        "key": "issues-part-7-code-1",
+        "chapter": "issues",
+        "layout": "code",
+        "tab": "문제 해결",
+        "title": {
+          "text": "한 적의 피격 효과가 모든 적에게 적용되는 문제",
+          "verbatim": true
+        },
+        "lead": null,
+        "sectionPath": [
+          "4. 문제 해결",
+          "4.2 한 적의 피격 효과가 모든 적에게 적용되는 문제"
+        ],
+        "points": [],
+        "visuals": [
+          {
+            "kind": "code",
+            "n": 1,
+            "fp": "if (spriteRenderer != null)"
+          }
+        ]
+      },
+      {
+        "key": "results-part-8-overview",
+        "chapter": "results",
+        "layout": "overview",
+        "tab": "결과",
+        "title": {
+          "text": "구현 결과",
+          "verbatim": true
+        },
+        "lead": null,
+        "sectionPath": [
+          "5. 결과",
+          "5.1 구현 결과"
+        ],
+        "points": [
+          {
+            "label": "결과",
+            "text": "이동·점프·대시와 콤보 공격, Hit Stop·넉백을 구현했습니다.",
+            "verbatim": true
+          },
+          {
+            "label": "결과",
+            "text": "벽면 충돌을 보정하고, 피격 효과가 다른 적에게 번지던 머티리얼 문제를 수정했습니다.",
+            "verbatim": true
+          },
+          {
+            "label": "결과",
+            "text": "적의 사망에 따라 남은 적 수와 UI를 갱신하고 다음 스테이지를 열도록 했습니다.",
+            "verbatim": true
+          }
+        ],
+        "visuals": []
+      }
+    ]
+  }
+}

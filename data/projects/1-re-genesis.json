@@ -1,0 +1,604 @@
+{
+  "id": "1-re-genesis",
+  "doc": "기술문서.md",
+  "schemaVersion": 2,
+  "title": "Re-Genesis",
+  "tagline": "자원을 모아 생산 시설을 짓고 물류를 자동화하는 3D 생존 게임",
+  "cover": "images/cover.png",
+  "intent": {
+    "text": "직선과 곡선 벨트에서 같은 기준으로 아이템 간격과 전달 시점을 정할 수 있도록, 이동 판단과 화면 위치 계산을 나눴습니다.",
+    "verbatim": true
+  },
+  "team": {
+    "type": "solo",
+    "size": "1인",
+    "role": "데이터 임포터, 인벤토리, 건설·물류·퀘스트 시스템 개발"
+  },
+  "meta": [
+    {
+      "label": "장르",
+      "value": "3D 탑뷰 생존·공장 자동화"
+    },
+    {
+      "label": "기간",
+      "value": "2026.01.20 ~ 2026.02.07"
+    },
+    {
+      "label": "인원",
+      "value": "1인 개발"
+    },
+    {
+      "label": "환경",
+      "value": "Unity 6000.3.2f1, C#, Rider"
+    }
+  ],
+  "tags": [
+    "Unity 6.3",
+    "C#",
+    "ScriptableObject",
+    "CSV·TSV",
+    "JSON",
+    "컨베이어 물류"
+  ],
+  "links": {
+    "github": "https://github.com/Searabbit11/Re-Genesis",
+    "video": "https://youtu.be/QIrySg5GNoQ"
+  },
+  "highlights": [
+    {
+      "title": "아이템·레시피 임포터",
+      "section": "3.1 표 데이터의 ScriptableObject 변환",
+      "what": "구글 시트에서 관리하는 아이템과 레시피를 Unity 에셋으로 가져오고, 같은 ID의 에셋은 재사용해 값을 갱신합니다.",
+      "how": "ID로 기존 에셋을 찾고, 레시피의 재료와 결과물은 아이템 ID로 연결합니다.",
+      "why": "표의 수치만 바꿔도 기존 에셋을 다시 연결하지 않고 데이터를 갱신할 수 있습니다.",
+      "image": {
+        "src": "images/item-table.png",
+        "w": 1262,
+        "h": 541,
+        "caption": {
+          "text": "아이템 표 데이터",
+          "verbatim": true
+        }
+      }
+    },
+    {
+      "title": "그리드 건설과 프리뷰",
+      "section": "3.2 그리드 건설과 배치 피드백",
+      "what": "시설 배치와 철거, 재료 회수를 구현했습니다.",
+      "how": "바닥과 설치된 오브젝트를 구분하고, 배치 가능 여부를 프리뷰 색상으로 표시합니다.",
+      "why": "실제로 설치하기 전에 놓을 수 있는 위치인지 확인하도록 했습니다.",
+      "image": {
+        "src": "images/build-placement.png",
+        "w": 615,
+        "h": 638,
+        "caption": {
+          "text": "설치 가능 상태의 프리뷰",
+          "verbatim": true
+        }
+      }
+    },
+    {
+      "title": "컨베이어 물류 설계",
+      "section": "3.3 진행도 기반 컨베이어 물류",
+      "what": "직선과 곡선에서 같은 진행도 기준으로 아이템 간격을 조절하고, 다음 벨트에 자리가 있을 때 넘깁니다.",
+      "how": "진행도는 이동 판단에 쓰고, 화면 위치는 직선과 원호에 맞게 계산합니다.",
+      "why": "간격과 전달 조건을 진행도로 판단하면 벨트의 모양을 바꿔도 같은 이동 규칙을 쓸 수 있습니다.",
+      "image": {
+        "src": "images/cover.png",
+        "w": 1031,
+        "h": 627,
+        "caption": {
+          "text": "곡선 벨트의 진행도와 이동 경로",
+          "verbatim": true
+        }
+      }
+    }
+  ],
+  "troubleshooting": [
+    {
+      "title": "곡선 벨트에서 아이템이 가로지르는 문제",
+      "section": "4.1 곡선 벨트에서 아이템이 가로지르는 문제",
+      "problem": "곡선 구간에 직선 보간을 적용하자 아이템이 원호를 따라가지 않고 안쪽을 가로질렀습니다.",
+      "cause": "시작점과 끝점 사이를 직선으로 보간해 곡선 벨트의 형태를 반영하지 못했습니다.",
+      "solution": "진행도를 0~90도의 각도로 바꿔 Sin·Cos로 원호 위의 위치를 계산했습니다. 레인별 반경과 중심점 오프셋을 조절해 벨트 모델에 경로를 맞췄습니다.",
+      "result": "아이템 이동 경로를 직선에서 벨트 형태에 맞는 원호로 바꿨습니다.",
+      "lesson": ""
+    },
+    {
+      "title": "벨트 연결부의 위치 단절과 전송 타이밍",
+      "section": "4.2 벨트 연결부의 위치 단절과 전송 타이밍",
+      "problem": "모델의 피벗과 길이 차이로 연결부에서 아이템이 뜨거나, 다음 벨트로 넘어갈 때 잠깐 끊겨 보였습니다.",
+      "cause": "",
+      "solution": "중심점과 출구 오프셋으로 위치를 보정했습니다. 진행도가 BeltEndThreshold에 도달하면 다음 벨트가 아이템을 받을 수 있는지 확인한 뒤 넘기도록 했습니다.",
+      "result": "연결부 위치와 다음 벨트로 넘기는 시점을 모델에 맞게 조정했습니다.",
+      "lesson": ""
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "images/item-table.png",
+      "w": 1262,
+      "h": 541,
+      "caption": "아이템 표 데이터"
+    },
+    {
+      "src": "images/item-inspector.png",
+      "w": 576,
+      "h": 610,
+      "caption": "생성된 아이템 데이터 에셋"
+    },
+    {
+      "src": "images/build-placement.png",
+      "w": 615,
+      "h": 638,
+      "caption": "설치 가능 상태의 프리뷰"
+    },
+    {
+      "src": "images/build-overlap.png",
+      "w": 753,
+      "h": 508,
+      "caption": "겹침으로 설치할 수 없는 상태"
+    }
+  ],
+  "retro": {
+    "section": "5. 결과",
+    "achieved": [
+      "표를 수정해 아이템·레시피 데이터를 갱신하는 에디터 도구를 만들었습니다.",
+      "시설 배치부터 컨베이어 운송, 생산, 퀘스트 진행까지 구현했습니다.",
+      "플레이어·인벤토리·건축물·퀘스트 상태를 JSON으로 저장하고 불러오도록 했습니다."
+    ],
+    "regrets": [],
+    "plans": []
+  },
+  "deck": {
+    "chapters": [
+      {
+        "key": "intro",
+        "title": "개요",
+        "sectionPath": [
+          "1. 개요"
+        ]
+      },
+      {
+        "key": "architecture",
+        "title": "시스템 구조",
+        "sectionPath": [
+          "2. 시스템 구조"
+        ]
+      },
+      {
+        "key": "systems",
+        "title": "핵심 기능",
+        "sectionPath": [
+          "3. 핵심 기능"
+        ]
+      },
+      {
+        "key": "issues",
+        "title": "문제 해결",
+        "sectionPath": [
+          "4. 문제 해결"
+        ]
+      },
+      {
+        "key": "results",
+        "title": "결과",
+        "sectionPath": [
+          "5. 결과"
+        ]
+      }
+    ],
+    "slides": [
+      {
+        "key": "intro-part-1-overview",
+        "chapter": "intro",
+        "layout": "overview",
+        "tab": "구현",
+        "title": {
+          "text": "게임과 개발 목표",
+          "verbatim": true
+        },
+        "lead": {
+          "text": "황폐화된 행성에서 자원을 모으고 생산 시설을 지어 제네시스 시스템을 복구하는 게임입니다.",
+          "verbatim": true
+        },
+        "sectionPath": [
+          "1. 개요",
+          "1.1 게임과 개발 목표"
+        ],
+        "points": [
+          {
+            "label": "구현",
+            "text": "자원을 채굴하고 필요한 물품을 제작하며, 컨베이어로 생산 시설을 연결해 퀘스트를 진행합니다.",
+            "verbatim": true
+          }
+        ],
+        "visuals": []
+      },
+      {
+        "key": "architecture-part-2-figure-1",
+        "chapter": "architecture",
+        "layout": "full",
+        "tab": "구조",
+        "title": {
+          "text": "데이터와 게임 시스템의 연결",
+          "verbatim": true
+        },
+        "lead": {
+          "text": "CSV·TSV의 아이템·레시피·건설물 정보를 ScriptableObject 에셋으로 변환합니다.",
+          "verbatim": true
+        },
+        "sectionPath": [
+          "2. 시스템 구조",
+          "2.1 데이터와 게임 시스템의 연결"
+        ],
+        "points": [],
+        "visuals": [
+          {
+            "kind": "mermaid",
+            "n": 1,
+            "fp": "flowchart LR"
+          }
+        ]
+      },
+      {
+        "key": "architecture-part-2-figure-2",
+        "chapter": "architecture",
+        "layout": "full",
+        "tab": "구조",
+        "title": {
+          "text": "데이터와 게임 시스템의 연결",
+          "verbatim": true
+        },
+        "lead": {
+          "text": "인벤토리·건설·생산 시스템은 이 에셋을 사용하고, 플레이 중 바뀐 상태는 JSON으로 저장합니다.",
+          "verbatim": true
+        },
+        "sectionPath": [
+          "2. 시스템 구조",
+          "2.1 데이터와 게임 시스템의 연결"
+        ],
+        "points": [],
+        "visuals": [
+          {
+            "kind": "table",
+            "n": 1,
+            "fp": "구성요소|책임"
+          }
+        ]
+      },
+      {
+        "key": "systems-part-3-screens",
+        "chapter": "systems",
+        "layout": "screens",
+        "tab": "구현",
+        "title": {
+          "text": "표 데이터의 ScriptableObject 변환",
+          "verbatim": true
+        },
+        "lead": {
+          "text": "구글 시트에서 내보낸 CSV·TSV를 읽어 ScriptableObject 에셋을 생성하거나 갱신하는 에디터 도구입니다.",
+          "verbatim": true
+        },
+        "sectionPath": [
+          "3. 핵심 기능",
+          "3.1 표 데이터의 ScriptableObject 변환"
+        ],
+        "points": [],
+        "visuals": [
+          {
+            "kind": "image",
+            "src": "images/item-table.png",
+            "w": 1262,
+            "h": 541,
+            "caption": {
+              "text": "아이템 표 데이터",
+              "verbatim": true
+            }
+          },
+          {
+            "kind": "image",
+            "src": "images/item-inspector.png",
+            "w": 576,
+            "h": 610,
+            "caption": {
+              "text": "생성된 아이템 데이터 에셋",
+              "verbatim": true
+            }
+          }
+        ]
+      },
+      {
+        "key": "systems-part-3-code-1",
+        "chapter": "systems",
+        "layout": "code",
+        "tab": "구현",
+        "title": {
+          "text": "표 데이터의 ScriptableObject 변환",
+          "verbatim": true
+        },
+        "lead": {
+          "text": "아이템 ID로 기존 에셋을 찾아 갱신하고, 해당 ID가 없으면 새로 만듭니다.",
+          "verbatim": true
+        },
+        "sectionPath": [
+          "3. 핵심 기능",
+          "3.1 표 데이터의 ScriptableObject 변환"
+        ],
+        "points": [
+          {
+            "label": "구현",
+            "text": "레시피를 가져올 때는 재료와 결과물에 적힌 아이템 ID로 기존 `ItemData` 에셋을 찾아 연결합니다.",
+            "verbatim": true
+          },
+          {
+            "label": "이유",
+            "text": "같은 ID의 에셋을 다시 생성하지 않고 갱신하므로, 이미 연결된 에셋을 다시 지정할 필요가 없습니다.",
+            "verbatim": true
+          }
+        ],
+        "visuals": [
+          {
+            "kind": "code",
+            "n": 1,
+            "fp": "// 에셋 생성 및 저장 로직"
+          }
+        ]
+      },
+      {
+        "key": "systems-part-4-screens",
+        "chapter": "systems",
+        "layout": "screens",
+        "tab": "구현",
+        "title": {
+          "text": "그리드 건설과 배치 피드백",
+          "verbatim": true
+        },
+        "lead": {
+          "text": "시설을 그리드에 맞춰 배치하고, 설치할 수 있는 위치인지 프리뷰 색상으로 보여줍니다.",
+          "verbatim": true
+        },
+        "sectionPath": [
+          "3. 핵심 기능",
+          "3.2 그리드 건설과 배치 피드백"
+        ],
+        "points": [],
+        "visuals": [
+          {
+            "kind": "image",
+            "src": "images/build-placement.png",
+            "w": 615,
+            "h": 638,
+            "caption": {
+              "text": "설치 가능 상태의 프리뷰",
+              "verbatim": true
+            }
+          },
+          {
+            "kind": "image",
+            "src": "images/build-overlap.png",
+            "w": 753,
+            "h": 508,
+            "caption": {
+              "text": "겹침으로 설치할 수 없는 상태",
+              "verbatim": true
+            }
+          }
+        ]
+      },
+      {
+        "key": "systems-part-5-screens",
+        "chapter": "systems",
+        "layout": "visual",
+        "tab": "구현",
+        "title": {
+          "text": "진행도 기반 컨베이어 물류",
+          "verbatim": true
+        },
+        "lead": {
+          "text": "벨트 위 아이템은 레인과 0~1 사이의 진행도로 관리합니다.",
+          "verbatim": true
+        },
+        "sectionPath": [
+          "3. 핵심 기능",
+          "3.3 진행도 기반 컨베이어 물류"
+        ],
+        "points": [],
+        "visuals": [
+          {
+            "kind": "image",
+            "src": "images/cover.png",
+            "w": 1031,
+            "h": 627,
+            "caption": {
+              "text": "곡선 벨트의 진행도와 이동 경로",
+              "verbatim": true
+            }
+          }
+        ]
+      },
+      {
+        "key": "conveyor-design-choice",
+        "chapter": "systems",
+        "layout": "full",
+        "tab": "선택",
+        "title": {
+          "text": "컨베이어 이동 규칙과 화면 위치",
+          "verbatim": false
+        },
+        "lead": {
+          "text": "간격과 전달 조건을 진행도로 판단하면 벨트의 모양을 바꿔도 같은 이동 규칙을 쓸 수 있습니다.",
+          "verbatim": true
+        },
+        "sectionPath": [
+          "3. 핵심 기능",
+          "3.3 진행도 기반 컨베이어 물류"
+        ],
+        "points": [],
+        "visuals": [
+          {
+            "kind": "table",
+            "n": 1,
+            "fp": "비교 항목|직선 벨트|곡선 벨트"
+          }
+        ]
+      },
+      {
+        "key": "systems-part-5-code-1",
+        "chapter": "systems",
+        "layout": "code",
+        "tab": "구현",
+        "title": {
+          "text": "진행도 기반 컨베이어 물류",
+          "verbatim": true
+        },
+        "lead": {
+          "text": "직선에서는 진행도를 벨트 길이 방향의 좌표로 바꾸고, 곡선에서는 0~90도 사이의 각도로 바꿔 위치와 회전을 계산합니다.",
+          "verbatim": true
+        },
+        "sectionPath": [
+          "3. 핵심 기능",
+          "3.3 진행도 기반 컨베이어 물류"
+        ],
+        "points": [],
+        "visuals": [
+          {
+            "kind": "code",
+            "n": 1,
+            "fp": "float radius = curveRadius + xOffset;"
+          }
+        ]
+      },
+      {
+        "key": "systems-part-6-overview",
+        "chapter": "systems",
+        "layout": "overview",
+        "tab": "구현",
+        "title": {
+          "text": "플레이 상태 저장과 이벤트 연동",
+          "verbatim": true
+        },
+        "lead": {
+          "text": "플레이어 위치와 상태, 인벤토리 슬롯, 건축물의 좌표와 설정, 퀘스트 진행 및 해금 정보를 JSON으로 저장합니다.",
+          "verbatim": true
+        },
+        "sectionPath": [
+          "3. 핵심 기능",
+          "3.4 플레이 상태 저장과 이벤트 연동"
+        ],
+        "points": [
+          {
+            "label": "구현",
+            "text": "아이템을 얻거나 건물을 배치하면 이벤트로 UI와 퀘스트에 변경 사항을 알립니다.",
+            "verbatim": true
+          }
+        ],
+        "visuals": []
+      },
+      {
+        "key": "issues-part-7-problem",
+        "chapter": "issues",
+        "layout": "problem",
+        "tab": "문제 해결",
+        "title": {
+          "text": "곡선 벨트에서 아이템이 가로지르는 문제",
+          "verbatim": true
+        },
+        "lead": null,
+        "sectionPath": [
+          "4. 문제 해결",
+          "4.1 곡선 벨트에서 아이템이 가로지르는 문제"
+        ],
+        "points": [
+          {
+            "label": "문제",
+            "text": "곡선 구간에 직선 보간을 적용하자 아이템이 원호를 따라가지 않고 안쪽을 가로질렀습니다.",
+            "verbatim": true
+          },
+          {
+            "label": "원인",
+            "text": "시작점과 끝점 사이를 직선으로 보간해 곡선 벨트의 형태를 반영하지 못했습니다.",
+            "verbatim": true
+          },
+          {
+            "label": "해결",
+            "text": "진행도를 0~90도의 각도로 바꿔 Sin·Cos로 원호 위의 위치를 계산했습니다. 레인별 반경과 중심점 오프셋을 조절해 벨트 모델에 경로를 맞췄습니다.",
+            "verbatim": true
+          },
+          {
+            "label": "결과",
+            "text": "아이템 이동 경로를 직선에서 벨트 형태에 맞는 원호로 바꿨습니다.",
+            "verbatim": true
+          }
+        ],
+        "visuals": []
+      },
+      {
+        "key": "issues-part-8-problem",
+        "chapter": "issues",
+        "layout": "problem",
+        "tab": "문제 해결",
+        "title": {
+          "text": "벨트 연결부의 위치 단절과 전송 타이밍",
+          "verbatim": true
+        },
+        "lead": null,
+        "sectionPath": [
+          "4. 문제 해결",
+          "4.2 벨트 연결부의 위치 단절과 전송 타이밍"
+        ],
+        "points": [
+          {
+            "label": "문제",
+            "text": "모델의 피벗과 길이 차이로 연결부에서 아이템이 뜨거나, 다음 벨트로 넘어갈 때 잠깐 끊겨 보였습니다.",
+            "verbatim": true
+          },
+          {
+            "label": "해결",
+            "text": "중심점과 출구 오프셋으로 위치를 보정했습니다. 진행도가 BeltEndThreshold에 도달하면 다음 벨트가 아이템을 받을 수 있는지 확인한 뒤 넘기도록 했습니다.",
+            "verbatim": true
+          },
+          {
+            "label": "결과",
+            "text": "연결부 위치와 다음 벨트로 넘기는 시점을 모델에 맞게 조정했습니다.",
+            "verbatim": true
+          }
+        ],
+        "visuals": []
+      },
+      {
+        "key": "results-part-9-overview",
+        "chapter": "results",
+        "layout": "overview",
+        "tab": "결과",
+        "title": {
+          "text": "구현 결과",
+          "verbatim": true
+        },
+        "lead": null,
+        "sectionPath": [
+          "5. 결과",
+          "5.1 구현 결과"
+        ],
+        "points": [
+          {
+            "label": "결과",
+            "text": "표를 수정해 아이템·레시피 데이터를 갱신하는 에디터 도구를 만들었습니다.",
+            "verbatim": true
+          },
+          {
+            "label": "결과",
+            "text": "시설 배치부터 컨베이어 운송, 생산, 퀘스트 진행까지 구현했습니다.",
+            "verbatim": true
+          },
+          {
+            "label": "결과",
+            "text": "플레이어·인벤토리·건축물·퀘스트 상태를 JSON으로 저장하고 불러오도록 했습니다.",
+            "verbatim": true
+          }
+        ],
+        "visuals": []
+      }
+    ]
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "generatedAt": "2026-11-11",
+  "profile": {
+    "name": "신지원",
+    "nameEn": "SHIN JIWON",
+    "headline": "Unity 클라이언트 프로그래머",
+    "intro": "6개월간의 Unity/C# 게임 개발 교육을 수료하고, 슈퍼센트에서 Unity 클라이언트 개발 인턴으로 근무했습니다(2026.06.15~09.11).\n개인 프로젝트로 3D 생존·공장 자동화 게임과 2D 액션 게임을 개발했습니다.\n4인 AR 프로젝트에서는 팀장·PM으로 Firebase 연동, 랭킹, 게임 진행을 맡고 일정과 Git 작업을 관리했습니다.",
+    "github": "https://github.com/Searabbit11",
+    "links": []
+  },
+  "settings": {
+    "layout": "project",
+    "accent": "#2F6FEB"
+  },
+  "skills": [
+    {
+      "name": "Unity",
+      "evidence": [
+        {
+          "text": "그리드 배치 프리뷰와 컨베이어 운송 구현",
+          "project": "1-re-genesis"
+        },
+        {
+          "text": "Raycast 이동·충돌과 콤보·피격 효과 구현",
+          "project": "2-attack-roguelike"
+        },
+        {
+          "text": "게임 상태에 따른 준비·플레이·결과 화면 전환",
+          "project": "4-ar-room"
+        },
+        {
+          "text": "씬·프리팹·Animator 설정과 플레이 검증",
+          "project": "3-hypercasual"
+        }
+      ]
+    },
+    {
+      "name": "C#",
+      "evidence": [
+        {
+          "text": "진행도와 레인에 따른 아이템 이동·전송",
+          "project": "1-re-genesis"
+        },
+        {
+          "text": "적 FSM과 사망 이벤트에 따른 스테이지 진행",
+          "project": "2-attack-roguelike"
+        },
+        {
+          "text": "게임 상태 전환과 비동기 랭킹 조회 연동",
+          "project": "4-ar-room"
+        },
+        {
+          "text": "해금 완료 이벤트에 따른 NPC 생성·다음 구역 표시",
+          "project": "3-hypercasual"
+        }
+      ]
+    },
+    {
+      "name": "데이터 처리",
+      "evidence": [
+        {
+          "text": "CSV·TSV를 ScriptableObject로 가져오는 에디터 도구",
+          "project": "1-re-genesis"
+        }
+      ]
+    },
+    {
+      "name": "Firebase",
+      "evidence": [
+        {
+          "text": "인증 초기화 후 Firestore 랭킹 조회·표시",
+          "project": "4-ar-room"
+        }
+      ]
+    },
+    {
+      "name": "Git",
+      "evidence": [
+        {
+          "text": "팀 브랜치·병합 관리와 LFS·씬 충돌 해결",
+          "project": "4-ar-room"
+        }
+      ]
+    },
+    {
+      "name": "DOTween",
+      "evidence": [
+        {
+          "text": "가공·적재 애니메이션과 카메라 연출 구현",
+          "project": "3-hypercasual"
+        }
+      ]
+    }
+  ],
+  "projects": [
+    "1-re-genesis",
+    "2-attack-roguelike",
+    "4-ar-room",
+    "3-hypercasual"
+  ]
+}

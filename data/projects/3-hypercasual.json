@@ -1,0 +1,751 @@
+{
+  "id": "3-hypercasual",
+  "doc": "기술문서.md",
+  "schemaVersion": 2,
+  "title": "PrisonLife",
+  "tagline": "광석을 가공·납품해 시설과 장비를 확장하는 3D 하이퍼캐주얼 게임",
+  "cover": "images/cover.png",
+  "intent": {
+    "text": "채굴 → 적재 → 가공 → 납품 → 보상 → 업그레이드가 이어지도록 각 기능을 구현하고 통합했습니다.",
+    "verbatim": true
+  },
+  "team": {
+    "type": "solo",
+    "size": "1인 · AI 활용 개발",
+    "role": "씬·프리팹·Animator 설정, AI 생성 코드 검증, 기능 통합과 디버깅"
+  },
+  "meta": [
+    {
+      "label": "장르",
+      "value": "3D 하이퍼캐주얼 운영 게임"
+    },
+    {
+      "label": "기간",
+      "value": "2026.04.15 ~ 2026.04.19 · 5일"
+    },
+    {
+      "label": "인원",
+      "value": "1인 · AI 활용 개발"
+    },
+    {
+      "label": "환경",
+      "value": "Unity 2022.3.62f2, C#, URP, Git, Gemini CLI"
+    }
+  ],
+  "tags": [
+    "Unity 2022.3",
+    "C#",
+    "DOTween",
+    "Animator",
+    "오브젝트 풀링",
+    "TextMeshPro"
+  ],
+  "links": {
+    "video": "https://youtu.be/V64BQYYgo2c"
+  },
+  "highlights": [
+    {
+      "title": "채굴부터 납품까지",
+      "what": "광석을 채굴·가공해 수갑을 생산하고 납품하면 현금을 얻습니다.",
+      "how": "ResourceNode에서 얻은 광석을 StackManager에 적재하고 Converter와 DeliveryDesk에서 처리합니다.",
+      "why": "",
+      "section": "3.1 채굴·적재·가공·납품 연결",
+      "image": {
+        "src": "images/processing.png",
+        "w": 329,
+        "h": 584,
+        "caption": {
+          "text": "광석 가공기와 생산된 수갑이 놓인 배출 벨트",
+          "verbatim": true
+        }
+      }
+    },
+    {
+      "title": "단계별 업그레이드",
+      "what": "해금을 완료하면 작업 NPC를 생성하고 다음 구역을 엽니다.",
+      "how": "UnlockZone의 완료 이벤트를 UpgradeFlowController에서 받아 후속 처리를 실행합니다.",
+      "why": "비용 차감과 해금 이후의 진행을 별도 클래스에서 관리합니다.",
+      "section": "3.2 데이터와 이벤트를 이용한 단계형 업그레이드",
+      "image": {
+        "src": "images/miner-npcs.png",
+        "w": 384,
+        "h": 694,
+        "caption": {
+          "text": "해금한 채굴 NPC가 광석 구역에서 작업하는 모습",
+          "verbatim": true
+        }
+      }
+    },
+    {
+      "title": "오브젝트 풀과 채굴 판정",
+      "what": "광석·주괴·수갑을 재사용하고 채굴 대상을 배열로 조회합니다.",
+      "how": "Dictionary·Queue 기반 풀과 OverlapBoxNonAlloc을 사용하고 같은 배열에서 타격 순서를 정렬합니다.",
+      "why": "매번 새로 생성하는 대신 풀에서 꺼내 쓰고, 조회용 배열도 재사용합니다.",
+      "section": "3.3 반복 생성과 채굴 판정 처리",
+      "image": {
+        "src": "images/mining-stack-limit.png",
+        "w": 387,
+        "h": 691,
+        "caption": {
+          "text": "드릴 채굴 중 적재 한도를 알리는 MAX 표시",
+          "verbatim": true
+        }
+      }
+    },
+    {
+      "title": "카메라 연출 충돌 수정",
+      "what": "가공기의 흔들림 효과와 카메라 연출이 동시에 카메라 위치를 바꾸던 문제를 수정했습니다.",
+      "how": "Converter의 DOShakePosition 호출을 제거하고, CameraController에서 포커스 연출 중 흔들림 요청을 받지 않도록 했습니다.",
+      "why": "가공 효과가 포커스 연출의 카메라 위치를 바꾸지 않도록 했습니다.",
+      "section": "4.1 카메라 연출 중 간헐적인 화면 끊김",
+      "image": null
+    }
+  ],
+  "troubleshooting": [
+    {
+      "title": "카메라 연출 중 화면 끊김",
+      "problem": "시설을 비추는 카메라 연출 중 가공이 진행되면 화면이 덜컹거렸습니다.",
+      "cause": "카메라 추적·연출 코드와 가공기의 DOShakePosition이 동시에 카메라 위치를 바꿨습니다.",
+      "solution": "가공기의 직접 흔들림 호출을 제거하고, 포커스 연출 중에는 흔들림 요청을 차단했습니다.",
+      "result": "가공 효과가 카메라 위치를 덮어쓰지 않도록 하고, 포커스 연출 중 흔들림 요청을 차단했습니다.",
+      "lesson": "",
+      "section": "4.1 카메라 연출 중 간헐적인 화면 끊김"
+    },
+    {
+      "title": "드릴 모션 전환 지연",
+      "problem": "드릴을 장착한 뒤에도 곡괭이 모션이 먼저 재생됐습니다.",
+      "cause": "채굴 상태가 바뀔 때만 IsDrill을 갱신해 장비 변경을 놓쳤고, 모션 진입 조건도 구분해야 했습니다.",
+      "solution": "UpdateAnimation에서 IsDrill을 갱신하고, 값에 따라 곡괭이·드릴 모션에 진입하도록 했습니다.",
+      "result": "채굴 상태가 바뀌지 않아도 장비 상태가 Animator에 반영되도록 수정했습니다. 곡괭이와 드릴 모션은 각각의 장비 조건으로 진입하도록 했습니다.",
+      "lesson": "",
+      "section": "4.2 드릴 장착 후 채굴 모션 전환 지연"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "images/processing.png",
+      "w": 329,
+      "h": 584,
+      "caption": "광석 가공기와 생산된 수갑이 놓인 배출 벨트"
+    },
+    {
+      "src": "images/delivery.png",
+      "w": 328,
+      "h": 587,
+      "caption": "수갑 납품대와 현금 보상 수거 구역"
+    },
+    {
+      "src": "images/miner-npcs.png",
+      "w": 384,
+      "h": 694,
+      "caption": "해금한 채굴 NPC가 광석 구역에서 작업하는 모습"
+    },
+    {
+      "src": "images/facility-upgrade.png",
+      "w": 384,
+      "h": 690,
+      "caption": "확장된 수용 시설과 0/40 인원 표시"
+    },
+    {
+      "src": "images/mining-stack-limit.png",
+      "w": 387,
+      "h": 691,
+      "caption": "드릴 채굴 중 적재 한도를 알리는 MAX 표시"
+    }
+  ],
+  "retro": {
+    "section": "5. 결과",
+    "achieved": [
+      "자원 가공·납품과 보상을 통한 시설·장비 확장 구현",
+      "AI 생성 코드 검토와 Unity 설정·기능 통합·디버깅"
+    ],
+    "regrets": [],
+    "plans": []
+  },
+  "deck": {
+    "chapters": [
+      {
+        "key": "overview",
+        "title": "개요",
+        "sectionPath": [
+          "1. 개요"
+        ]
+      },
+      {
+        "key": "structure",
+        "title": "시스템 구조",
+        "sectionPath": [
+          "2. 시스템 구조"
+        ]
+      },
+      {
+        "key": "systems",
+        "title": "핵심 기능",
+        "sectionPath": [
+          "3. 핵심 기능"
+        ]
+      },
+      {
+        "key": "troubleshooting",
+        "title": "문제 해결과 구현 방식의 변경",
+        "sectionPath": [
+          "4. 문제 해결과 구현 방식의 변경"
+        ]
+      },
+      {
+        "key": "results",
+        "title": "결과",
+        "sectionPath": [
+          "5. 결과"
+        ]
+      }
+    ],
+    "slides": [
+      {
+        "key": "game-loop",
+        "chapter": "overview",
+        "layout": "overview",
+        "tab": "개요",
+        "title": {
+          "text": "1.1 게임과 개발 범위",
+          "verbatim": true
+        },
+        "lead": {
+          "text": "광석을 채굴·가공해 수갑을 납품하고, 번 현금으로 장비와 시설을 확장합니다.",
+          "verbatim": false
+        },
+        "sectionPath": [
+          "1. 개요",
+          "1.1 게임과 개발 범위"
+        ],
+        "points": [
+          {
+            "label": "기능",
+            "text": "채굴 → 적재 → 가공 → 납품 → 보상 → 업그레이드 순으로 진행합니다.",
+            "verbatim": false
+          },
+          {
+            "label": "구현",
+            "text": "조이스틱으로 이동하며 작업 구역에 들어가면 채굴·투입·수거가 진행됩니다.",
+            "verbatim": true
+          }
+        ],
+        "visuals": []
+      },
+      {
+        "key": "contribution",
+        "chapter": "overview",
+        "layout": "full",
+        "tab": "개요",
+        "title": {
+          "text": "담당 범위와 AI 활용",
+          "verbatim": true
+        },
+        "lead": {
+          "text": "Gemini CLI로 코드를 생성·수정하고, Unity 설정과 코드 검증·디버깅을 직접 맡았습니다.",
+          "verbatim": false
+        },
+        "sectionPath": [
+          "1. 개요",
+          "1.2 담당 범위와 AI 활용"
+        ],
+        "points": [],
+        "visuals": [
+          {
+            "kind": "table",
+            "n": 1,
+            "fp": "구분|수행 내용"
+          }
+        ]
+      },
+      {
+        "key": "resource-flow",
+        "chapter": "structure",
+        "layout": "full",
+        "tab": "구조",
+        "title": {
+          "text": "자원과 보상의 흐름",
+          "verbatim": true
+        },
+        "lead": {
+          "text": "광석을 수갑으로 가공해 납품하고, 보상으로 받은 현금을 업그레이드에 사용합니다.",
+          "verbatim": false
+        },
+        "sectionPath": [
+          "2. 시스템 구조",
+          "2.1 자원과 보상의 흐름"
+        ],
+        "points": [],
+        "visuals": [
+          {
+            "kind": "mermaid",
+            "n": 1,
+            "fp": "flowchart LR"
+          }
+        ]
+      },
+      {
+        "key": "unlock-events",
+        "chapter": "structure",
+        "layout": "full",
+        "tab": "흐름",
+        "title": {
+          "text": "해금 처리와 진행 연동",
+          "verbatim": true
+        },
+        "lead": {
+          "text": "UnlockZone의 완료 이벤트를 받아 NPC를 생성하거나 다음 구역을 엽니다.",
+          "verbatim": false
+        },
+        "sectionPath": [
+          "2. 시스템 구조",
+          "2.2 해금 처리와 진행 연동"
+        ],
+        "points": [],
+        "visuals": [
+          {
+            "kind": "mermaid",
+            "n": 1,
+            "fp": "sequenceDiagram"
+          }
+        ]
+      },
+      {
+        "key": "mining-code",
+        "chapter": "systems",
+        "layout": "code",
+        "tab": "구현",
+        "title": {
+          "text": "채굴·적재·가공·납품 연결",
+          "verbatim": true
+        },
+        "lead": {
+          "text": "적재 가능 여부와 타격 처리를 나눠, 적재 공간이 가득 차도 채굴 타격은 유지합니다.",
+          "verbatim": false
+        },
+        "sectionPath": [
+          "3. 핵심 기능",
+          "3.1 채굴·적재·가공·납품 연결"
+        ],
+        "points": [
+          {
+            "label": "구현",
+            "text": "이미 파괴된 자원이거나 적재 대상이 없으면 처리를 끝냅니다.",
+            "verbatim": false
+          },
+          {
+            "label": "기능",
+            "text": "적재 공간이 가득 차면 `MAX`를 표시하고 타격은 계속 처리하지만, 광석은 지급하지 않습니다.",
+            "verbatim": true
+          }
+        ],
+        "visuals": [
+          {
+            "kind": "code",
+            "n": 1,
+            "fp": "public void TakeDamage(int damage, StackManager playerStack)"
+          }
+        ]
+      },
+      {
+        "key": "processing-and-delivery",
+        "chapter": "systems",
+        "layout": "screens",
+        "tab": "흐름",
+        "title": {
+          "text": "광석 가공과 수갑 납품",
+          "verbatim": false
+        },
+        "lead": null,
+        "sectionPath": [
+          "3. 핵심 기능",
+          "3.1 채굴·적재·가공·납품 연결"
+        ],
+        "points": [],
+        "visuals": [
+          {
+            "kind": "image",
+            "src": "images/processing.png",
+            "w": 329,
+            "h": 584,
+            "caption": {
+              "text": "광석 가공기와 생산된 수갑이 놓인 배출 벨트",
+              "verbatim": true
+            }
+          },
+          {
+            "kind": "image",
+            "src": "images/delivery.png",
+            "w": 328,
+            "h": 587,
+            "caption": {
+              "text": "수갑 납품대와 현금 보상 수거 구역",
+              "verbatim": true
+            }
+          }
+        ]
+      },
+      {
+        "key": "upgrade-code",
+        "chapter": "systems",
+        "layout": "code",
+        "tab": "구현",
+        "title": {
+          "text": "단계형 업그레이드",
+          "verbatim": true
+        },
+        "lead": {
+          "text": "UnlockZone의 완료 이벤트로 NPC 생성과 다음 구역 표시를 처리합니다.",
+          "verbatim": false
+        },
+        "sectionPath": [
+          "3. 핵심 기능",
+          "3.2 데이터와 이벤트를 이용한 단계형 업그레이드"
+        ],
+        "points": [
+          {
+            "label": "구현",
+            "text": "완료된 구역은 숨기고 다음 해금 구역을 표시합니다.",
+            "verbatim": true
+          }
+        ],
+        "visuals": [
+          {
+            "kind": "code",
+            "n": 1,
+            "fp": "private void HandleMinerNpcAllStagesCompleted(UnlockZone zon"
+          }
+        ]
+      },
+      {
+        "key": "unlock-play-screens",
+        "chapter": "systems",
+        "layout": "screens",
+        "tab": "구현",
+        "title": {
+          "text": "채굴 NPC 해금과 시설 확장",
+          "verbatim": false
+        },
+        "lead": null,
+        "sectionPath": [
+          "3. 핵심 기능",
+          "3.2 데이터와 이벤트를 이용한 단계형 업그레이드"
+        ],
+        "points": [],
+        "visuals": [
+          {
+            "kind": "image",
+            "src": "images/miner-npcs.png",
+            "w": 384,
+            "h": 694,
+            "caption": {
+              "text": "해금한 채굴 NPC가 광석 구역에서 작업하는 모습",
+              "verbatim": true
+            }
+          },
+          {
+            "kind": "image",
+            "src": "images/facility-upgrade.png",
+            "w": 384,
+            "h": 690,
+            "caption": {
+              "text": "확장된 수용 시설과 0/40 인원 표시",
+              "verbatim": true
+            }
+          }
+        ]
+      },
+      {
+        "key": "pool-return",
+        "chapter": "systems",
+        "layout": "code",
+        "tab": "구현",
+        "title": {
+          "text": "반복 생성과 채굴 판정 처리",
+          "verbatim": true
+        },
+        "lead": {
+          "text": "사용한 광석·주괴·수갑은 풀에 돌려놓고 다시 꺼내 씁니다.",
+          "verbatim": false
+        },
+        "sectionPath": [
+          "3. 핵심 기능",
+          "3.3 반복 생성과 채굴 판정 처리"
+        ],
+        "points": [
+          {
+            "label": "구현",
+            "text": "Dictionary와 Queue로 오브젝트를 보관하고 꺼내기·반환을 처리합니다.",
+            "verbatim": false
+          },
+          {
+            "label": "구현",
+            "text": "OverlapBoxNonAlloc의 조회 결과를 재사용 배열에 받습니다.",
+            "verbatim": false
+          }
+        ],
+        "visuals": [
+          {
+            "kind": "code",
+            "n": 1,
+            "fp": "public void ReturnToPool(string tag, GameObject obj)"
+          }
+        ]
+      },
+      {
+        "key": "drill-play-screen",
+        "chapter": "systems",
+        "layout": "visual",
+        "tab": "구현",
+        "title": {
+          "text": "드릴 채굴과 적재 한도",
+          "verbatim": false
+        },
+        "lead": null,
+        "sectionPath": [
+          "3. 핵심 기능",
+          "3.3 반복 생성과 채굴 판정 처리"
+        ],
+        "points": [],
+        "visuals": [
+          {
+            "kind": "image",
+            "src": "images/mining-stack-limit.png",
+            "w": 387,
+            "h": 691,
+            "caption": {
+              "text": "드릴 채굴 중 적재 한도를 알리는 MAX 표시",
+              "verbatim": true
+            }
+          }
+        ]
+      },
+      {
+        "key": "camera-problem",
+        "chapter": "troubleshooting",
+        "layout": "problem",
+        "tab": "문제 해결",
+        "title": {
+          "text": "카메라 연출 중 화면 끊김",
+          "verbatim": false
+        },
+        "lead": null,
+        "sectionPath": [
+          "4. 문제 해결과 구현 방식의 변경",
+          "4.1 카메라 연출 중 간헐적인 화면 끊김"
+        ],
+        "points": [
+          {
+            "label": "문제",
+            "text": "시설을 비추는 카메라 연출 중 가공이 진행되면 화면이 덜컹거렸습니다.",
+            "verbatim": true
+          },
+          {
+            "label": "원인",
+            "text": "카메라 추적·연출 코드와 DOShakePosition이 동시에 카메라 위치를 바꿨습니다.",
+            "verbatim": false
+          },
+          {
+            "label": "해결",
+            "text": "`Converter`에서 카메라를 직접 흔드는 호출을 제거했습니다.",
+            "verbatim": true
+          },
+          {
+            "label": "결과",
+            "text": "가공 효과가 카메라 위치를 덮어쓰지 않도록 하고, 포커스 연출 중 흔들림 요청을 차단했습니다.",
+            "verbatim": false
+          }
+        ],
+        "visuals": []
+      },
+      {
+        "key": "camera-shake",
+        "chapter": "troubleshooting",
+        "layout": "code",
+        "tab": "문제 해결",
+        "title": {
+          "text": "카메라 흔들림 처리",
+          "verbatim": false
+        },
+        "lead": {
+          "text": "포커스 연출 중에는 새 흔들림 요청을 받지 않도록 했습니다.",
+          "verbatim": false
+        },
+        "sectionPath": [
+          "4. 문제 해결과 구현 방식의 변경",
+          "4.1 카메라 연출 중 간헐적인 화면 끊김"
+        ],
+        "points": [],
+        "visuals": [
+          {
+            "kind": "code",
+            "n": 1,
+            "fp": "public void ShakeCamera(float duration = 0.1f, float strengt"
+          }
+        ]
+      },
+      {
+        "key": "camera-comparison",
+        "chapter": "troubleshooting",
+        "layout": "full",
+        "tab": "선택",
+        "title": {
+          "text": "카메라 제어 변경 전후",
+          "verbatim": false
+        },
+        "lead": null,
+        "sectionPath": [
+          "4. 문제 해결과 구현 방식의 변경",
+          "4.1 카메라 연출 중 간헐적인 화면 끊김"
+        ],
+        "points": [],
+        "visuals": [
+          {
+            "kind": "table",
+            "n": 1,
+            "fp": "구분|변경 전|변경 후"
+          }
+        ]
+      },
+      {
+        "key": "drill-problem",
+        "chapter": "troubleshooting",
+        "layout": "problem",
+        "tab": "문제 해결",
+        "title": {
+          "text": "드릴 모션 전환 지연",
+          "verbatim": false
+        },
+        "lead": null,
+        "sectionPath": [
+          "4. 문제 해결과 구현 방식의 변경",
+          "4.2 드릴 장착 후 채굴 모션 전환 지연"
+        ],
+        "points": [
+          {
+            "label": "문제",
+            "text": "드릴을 장착한 뒤에도 곡괭이 모션이 먼저 재생됐습니다.",
+            "verbatim": false
+          },
+          {
+            "label": "원인",
+            "text": "채굴 상태가 같으면 함수가 먼저 종료돼 IsDrill 갱신이 생략됐습니다.",
+            "verbatim": false
+          },
+          {
+            "label": "해결",
+            "text": "IsDrill 갱신을 UpdateAnimation으로 옮기고 장비별 모션 진입 조건을 나눴습니다.",
+            "verbatim": false
+          }
+        ],
+        "visuals": []
+      },
+      {
+        "key": "drill-sync",
+        "chapter": "troubleshooting",
+        "layout": "code",
+        "tab": "문제 해결",
+        "title": {
+          "text": "장비 상태 동기화",
+          "verbatim": false
+        },
+        "lead": {
+          "text": "UpdateAnimation에서 현재 장비를 확인해 IsDrill을 갱신합니다.",
+          "verbatim": false
+        },
+        "sectionPath": [
+          "4. 문제 해결과 구현 방식의 변경",
+          "4.2 드릴 장착 후 채굴 모션 전환 지연"
+        ],
+        "points": [],
+        "visuals": [
+          {
+            "kind": "code",
+            "n": 1,
+            "fp": "private void UpdateAnimation()"
+          }
+        ]
+      },
+      {
+        "key": "animator-conditions",
+        "chapter": "troubleshooting",
+        "layout": "full",
+        "tab": "문제 해결",
+        "title": {
+          "text": "Animator 전이 조건 분리",
+          "verbatim": false
+        },
+        "lead": {
+          "text": "곡괭이와 드릴의 진입 조건을 구분했습니다.",
+          "verbatim": false
+        },
+        "sectionPath": [
+          "4. 문제 해결과 구현 방식의 변경",
+          "4.2 드릴 장착 후 채굴 모션 전환 지연"
+        ],
+        "points": [],
+        "visuals": [
+          {
+            "kind": "table",
+            "n": 1,
+            "fp": "전이|적용 조건"
+          }
+        ]
+      },
+      {
+        "key": "stack-tradeoffs",
+        "chapter": "troubleshooting",
+        "layout": "full",
+        "tab": "선택",
+        "title": {
+          "text": "스택 이동 코드의 구현 방식 비교",
+          "verbatim": false
+        },
+        "lead": {
+          "text": "제네릭 메서드를 자료형별 오버로드로 바꿔 매 프레임 실행되던 타입 검사를 줄였습니다.",
+          "verbatim": false
+        },
+        "sectionPath": [
+          "4. 문제 해결과 구현 방식의 변경",
+          "4.3 스택 이동 코드의 중복과 Update 처리 비용"
+        ],
+        "points": [],
+        "visuals": [
+          {
+            "kind": "table",
+            "n": 1,
+            "fp": "방식|장점|고려할 점"
+          }
+        ]
+      },
+      {
+        "key": "implemented-results",
+        "chapter": "results",
+        "layout": "overview",
+        "tab": "결과",
+        "title": {
+          "text": "구현 결과",
+          "verbatim": true
+        },
+        "lead": null,
+        "sectionPath": [
+          "5. 결과",
+          "5.1 구현 결과"
+        ],
+        "points": [
+          {
+            "label": "결과",
+            "text": "채굴한 자원을 가공·납품하고 보상으로 장비와 시설을 확장하는 게임을 구현했습니다.",
+            "verbatim": true
+          },
+          {
+            "label": "결과",
+            "text": "업그레이드에 따라 장비·시설과 작업 NPC를 해금하고, 가이드·카메라·엔딩 연출을 적용했습니다.",
+            "verbatim": true
+          }
+        ],
+        "visuals": []
+      }
+    ]
+  }
+}
