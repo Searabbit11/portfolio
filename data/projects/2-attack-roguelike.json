@@ -42,7 +42,13 @@
   ],
   "links": {
     "github": "https://github.com/Searabbit11/Attack-Roguelike",
-    "video": "https://youtu.be/AbxDOZJ2oMo"
+    "video": "https://youtu.be/AbxDOZJ2oMo",
+    "extra": [
+      {
+        "label": "기술 문서 PDF",
+        "url": "https://drive.google.com/file/d/1uOeQDZVlekgcs0ZOFPyRr3V3xwOPDlws/view"
+      }
+    ]
   },
   "highlights": [
     {
