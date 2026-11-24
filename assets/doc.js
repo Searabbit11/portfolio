@@ -97,7 +97,6 @@
       <aside class="rail" aria-label="프로젝트 정보">
         <section class="rail-card"><p class="rail-title">${T('doc.rail-project')}</p><dl class="rail-meta">${metaRows}</dl>
           <div class="actions">${deckBtn}${ext.join('')}</div></section>
-        <section class="rail-card" id="rail-now" aria-live="polite"><p class="rail-title">${T('doc.rail-now')}</p><p class="now-title">—</p><div class="now-body"></div></section>
         <section class="rail-card rail-misc">
           ${link({ href: srcPath(p.doc), label: T('doc.raw-md'), kind: 'file' })}
           ${PF.isUrl(p.links?.github) ? link({ href: p.links.github, label: T('doc.raw-github'), kind: 'external' }) : ''}
@@ -254,7 +253,7 @@
     const deckAbs = new URL(deckUrl(), location.href).href;
     document.querySelector('.print-urls').innerHTML = `<p>${T('doc.print-web')}: ${esc(here.href)}</p><p>${T('name.deck')}: ${esc(deckAbs)}</p>`;
 
-    // ⑩ 목차 현재 위치(스크롤 기준) + 레일 "지금 읽는 절"
+    // ⑩ 목차 현재 위치(스크롤 기준)
     trackSection(headings.filter((h) => h.tagName === 'H2' || h.tagName === 'H3'));
 
     // ⑪ 이미지 크게 보기, 다이어그램 크게 보기(같은 페이지 dialog)
@@ -291,10 +290,7 @@
   function trackSection(list) {
     const links = new Map([...document.querySelectorAll('#toc-links a')].map((a) => [decodeURIComponent(a.hash.slice(1)), a]));
     const tocBox = document.getElementById('toc');
-    const nowTitle = document.querySelector('#rail-now .now-title');
-    const nowBody = document.querySelector('#rail-now .now-body');
     let cur, t = 0;
-    const parentH2 = (h) => { let i = list.indexOf(h); while (i >= 0 && list[i].tagName !== 'H2') i--; return list[i] || null; };
     const update = () => {
       t = 0;
       let c = null;
@@ -302,7 +298,7 @@
       if (c === cur && cur !== undefined) return;
       cur = c;
       links.forEach((a) => { a.classList.remove('active'); a.removeAttribute('aria-current'); });
-      if (!c) { nowTitle.textContent = PF.t('doc.start'); nowBody.innerHTML = `<p class="now-none">${T('doc.now-none')}</p>`; return; }
+      if (!c) return;
       const a = links.get(c.id);
       if (a) {
         a.classList.add('active'); a.setAttribute('aria-current', 'location');
@@ -311,9 +307,6 @@
           if (top < tocBox.scrollTop + 40 || bottom > tocBox.scrollTop + tocBox.clientHeight - 40) tocBox.scrollTop = Math.max(0, top - tocBox.clientHeight / 3);
         }
       }
-      nowTitle.textContent = htext(c);
-      const h2 = parentH2(c);
-      nowBody.innerHTML = h2 && h2 !== c ? `<p class="now-parent">${esc(htext(h2))}</p>` : '';
     };
     addEventListener('scroll', () => { if (!t) t = setTimeout(update, 60); }, { passive: true });   // rAF 대신 setTimeout(가려진 창에서도 동작)
     addEventListener('resize', () => { cur = undefined; update(); });

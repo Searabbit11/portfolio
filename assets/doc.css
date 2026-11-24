@@ -1,8 +1,7 @@
 /* ─────────────────────────────────────────────────────────────
    프로젝트 상세 문서 — doc.html 전용 (portfolio-structure §4, 결정 F2·F3·F6)
    주석의 설계 근거(docs/design/…의 portfolio-structure·deck-vs-scroll·01 §, R0, 결정 F·Q·# 번호)와 원본 시안(spikes/…)은 템플릿 유지관리용 maintainer 브랜치에 있습니다. 이 레포에 없어도 정상입니다.
-   레이아웃 ① 가운데 정렬(spikes/doc-layout/doc.html?layout=1 그대로): 최대 폭 1840 · 목차 260 · 본문 칸 · 레일 300(1800px 이상),
-   본문 글줄 40rem을 본문 칸 가운데에, 코드·표는 글줄 왼쪽에서 오른쪽으로 넓힘, 도식·그림은 가운데 최대 1200.
+   화면은 글·표·코드·그림·영상을 최대 45rem 본문에 묶고, 목차와 레일이 있어도 본문은 화면 가운데에 둡니다.
    1200px 미만은 목차를 [목차] 서랍으로, 720px 미만은 휴대폰 한 열. 인쇄는 A4(코드·그림이 쪽 사이에서 잘리지 않게만, 빈칸 0은 보장 안 함).
    장면 키트 CSS는 싣지 않습니다(결정 #14의 인쇄 규칙이 흐르는 문서를 빈 쪽으로 만들기 때문, §4-8).
    화면은 어두운 테마(포트폴리오 페이지·슬라이드와 같은 검은 바탕 · 한 단 밝은 카드 · 강조색 → 보랏빛 그러데이션). 인쇄는 맨 아래 @media print에서 흰 종이용 밝은 색으로 되돌림.
@@ -24,10 +23,9 @@
   --sans: 'Pretendard', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --mono: 'JetBrains Mono', 'D2Coding', Consolas, monospace;
   --r: var(--t-radius, 20px); --radius: calc(var(--r) * .7); --pill: var(--t-pill, 999px);
-  /* 공통 틀: 목차 260 · 간격 40 · 본문 칸 · 간격 40 · 레일 300(≥1800px), 바깥 패딩 clamp(16px, 2.5vw, 48px) */
-  --toc-w: 260px; --rail-w: 300px; --gap: 40px; --pad: clamp(16px, 2.5vw, 48px);
-  /* ① 가운데: 최대 폭 1840, 글줄 40rem(rem인 이유: em이면 h2에서 요소마다 다르게 풀림), 도식·그림 최대 1200 */
-  --measure: 40rem; --page-max: 1840px; --fig-max: 1200px;
+  /* 목차와 레일은 양옆 여백을 활용하고 본문은 화면 중앙에 고정 */
+  --toc-w: 260px; --rail-w: 300px; --gap: clamp(48px, 3.4vw, 64px); --pad: clamp(16px, 2.5vw, 48px);
+  --measure: 45rem; --page-max: 1840px;
   color-scheme: var(--t-scheme, dark);
 }
 
@@ -82,18 +80,18 @@ code { font-family: var(--mono); font-size: .88em; background: var(--accent-soft
 /* ── 공통 틀 ─────────────────────────────── */
 .doc-page { max-width: var(--page-max); margin: 0 auto; padding-inline: var(--pad);
             display: grid; column-gap: var(--gap); align-items: start;
-            grid-template-columns: var(--toc-w) minmax(0, 1fr) var(--rail-w);
+            grid-template-columns: minmax(0, 1fr) minmax(0, var(--measure)) minmax(0, 1fr);
             grid-template-areas: "toc main rail"; }
-.toc { grid-area: toc; }
+.toc { grid-area: toc; width: min(100%, var(--toc-w)); justify-self: end; }
 .doc-main { grid-area: main; min-width: 0; padding: 36px 0 96px; outline: none; }
-.rail { grid-area: rail; }
+.rail { grid-area: rail; width: min(100%, var(--rail-w)); justify-self: start; }
 .toc, .rail { position: sticky; top: 24px; max-height: calc(100vh - 48px); overflow-y: auto; margin-top: 36px; overscroll-behavior: contain; }
 
 /* 목차 */
 .toc { font-size: 13.5px; padding: 0 6px 24px 0; scrollbar-width: thin; }
 .toc-title { font-size: 12px; font-weight: 800; letter-spacing: .06em; color: var(--muted); margin-bottom: 10px; }
 .toc-links { position: relative; }
-.toc-links a { display: block; text-decoration: none; color: var(--muted); padding: 4px 10px; line-height: 1.45; border-left: 2px solid var(--line); }
+.toc-links a { display: block; text-decoration: none; color: var(--muted); padding: 4px 10px; line-height: 1.45; border-left: 2px solid var(--line); overflow-wrap: anywhere; }
 .toc-links a.h3 { padding-left: 22px; font-size: 13px; }
 .toc-links a:hover { color: var(--ink); }
 .toc-links a.active { color: var(--accent-ink); border-left-color: var(--accent-ink); font-weight: 700; background: var(--accent-soft); }
@@ -107,9 +105,6 @@ code { font-family: var(--mono); font-size: .88em; background: var(--accent-soft
 .rail-meta dt { color: var(--muted); font-weight: 700; }
 .rail-meta dd { color: var(--ink); }
 .rail-card .actions { margin-top: 12px; }
-.now-title { font-size: 14px; font-weight: 800; color: var(--ink); margin-bottom: 8px; line-height: 1.4; }
-.now-none { font-size: 13px; color: var(--muted); }
-.now-parent { font-size: 12.5px; color: var(--faint); margin-top: 4px; }
 .rail-misc { display: grid; gap: 6px; font-size: 13.5px; font-weight: 700; }
 .rail-misc a { text-decoration: none; color: var(--accent-ink); }
 .rail-misc a:hover { text-decoration: underline; }
@@ -154,7 +149,7 @@ code { font-family: var(--mono); font-size: .88em; background: var(--accent-soft
 .md pre { margin: 16px 0; border-radius: calc(var(--r) * .7); overflow: auto; background: var(--code-bg); border: 1px solid var(--line); }
 .md pre code, .md pre code.hljs { display: block; width: max-content; min-width: 100%; padding: 18px 20px; font-size: 13.5px; line-height: 1.65;
                                   background: transparent; color: #E6E6E6; word-break: normal; white-space: pre; overflow: visible; border-radius: 0; }
-.md pre.fade-r { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 56px), rgba(0,0,0,.25)); mask-image: linear-gradient(to right, #000 calc(100% - 56px), rgba(0,0,0,.25)); }
+.md pre.fade-r { border-right-color: var(--line-2); }
 
 .table-wrap { margin: 18px 0; overflow-x: auto; }
 .md table { display: table; border-collapse: collapse; font-size: 14.5px; }
@@ -171,11 +166,12 @@ code { font-family: var(--mono); font-size: .88em; background: var(--accent-soft
 .md .mmd { margin: 22px 0; }
 .mmd .mermaid { display: flex; justify-content: center; padding: 16px; border: 1px solid var(--diagram-bg); border-radius: calc(var(--r) * .7); overflow-x: auto; background: var(--diagram-bg); }
 .mmd .mermaid svg { display: block; max-width: 100%; height: auto; }
-.mmd-bar { contain: inline-size; display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 6px 12px; margin-top: 6px; font-size: 13px; }
-.mmd-src summary { color: var(--muted); cursor: pointer; font-weight: 600; }
+.mmd-bar { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; margin-top: 6px; font-size: 13px; }
+.mmd-src { grid-area: 1 / 1 / 2 / -1; min-width: 0; }
+.mmd-src summary { width: fit-content; color: var(--muted); cursor: pointer; font-weight: 600; }
 .mmd-src pre { margin: 8px 0 0; max-height: 320px; overflow: auto; background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; }
 .mmd-src pre code { display: block; padding: 10px 12px; font-size: 12.5px; color: var(--body); background: none; white-space: pre; word-break: normal; }
-.mmd-zoom { font: inherit; font-size: 13px; font-weight: 700; color: var(--accent-ink); background: none; border: 0; cursor: pointer; padding: 0; }
+.mmd-zoom { grid-area: 1 / 2; font: inherit; font-size: 13px; font-weight: 700; color: var(--accent-ink); background: none; border: 0; cursor: pointer; padding: 0; }
 .pf-mmd-error { font-family: var(--mono); font-size: 13px; white-space: pre-wrap; color: #F97066; }
 
 
@@ -207,18 +203,21 @@ dialog.lightbox::backdrop { background: rgba(10, 11, 14, .82); }
             display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 20px; color: var(--faint); font-size: 13px; }
 .doc-foot a { color: var(--muted); text-decoration: none; }
 
-/* ── ① 가운데 정렬 폭 규칙: 글줄 40rem을 본문 칸 가운데에, 코드·표는 글줄 왼쪽에서 오른쪽으로만, 도식·그림은 가운데 최대 1200 ── */
-.doc-intro, .md > * { max-width: min(var(--measure), 100%); }
-.md > :is(pre, .table-wrap) { width: max-content; min-width: min(var(--measure), 100%); max-width: 100%; overflow-x: auto; }
-.md > :is(.mmd, .pf-figure) { width: fit-content; max-width: min(100%, var(--fig-max)); }
-.md > .print-only { max-width: none; }
-.doc-intro, .md > :not(pre, .table-wrap, .mmd, .pf-figure) { margin-inline: auto; }
-.md > :is(pre, .table-wrap) { margin-left: max(0px, (100% - var(--measure)) / 2); max-width: calc(100% - max(0px, (100% - var(--measure)) / 2)); }
-.md > :is(.mmd, .pf-figure) { margin-inline: auto; }
+/* 화면에서 본문 요소는 같은 폭을 공유하고, 긴 코드는 블록 안에서 스크롤합니다. */
+@media screen {
+  .doc-intro, #doc { width: min(100%, var(--measure)); margin-inline: auto; }
+  #doc { overflow-wrap: anywhere; }
+  #doc > *, #doc :is(img, video, iframe) { max-width: 100%; }
+  #doc pre, #doc > :is(.pf-figure, figure) img { width: 100%; }
+  #doc .table-wrap > table { width: 100%; }
+  #doc .table-wrap th { white-space: normal; }
+  #doc .pf-figure img, #doc :is(video, iframe) { display: block; margin-inline: auto; }
+  #doc > figure img { display: block; height: auto; }
+  #doc > figure:has(video) { margin-block: 20px; }
+}
 
 /* ── 반응형 (화면에만; 인쇄 폭에서 켜지지 않게 screen으로 한정) ── */
 @media screen and (max-width: 1799.98px) {
-  .doc-page { grid-template-columns: var(--toc-w) minmax(0, 1fr); grid-template-areas: "toc main"; }
   .rail { display: none; }                         /* 레일 내용 → 머리 막대·머리 줄 + 절 머리 칩 */
 }
 @media screen and (max-width: 1199.98px) {
@@ -239,6 +238,8 @@ dialog.lightbox::backdrop { background: rgba(10, 11, 14, .82); }
   .md h3 { font-size: 17.5px; }
   .md pre code, .md pre code.hljs { font-size: 12.5px; padding: 14px 16px; }
   .md table { font-size: 14px; }
+  #doc .table-wrap :is(th, td) { padding: 8px 9px; }
+  #doc .table-wrap td:first-child { overflow-wrap: break-word; }
   .doc-foot { padding-bottom: 88px; }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -276,11 +277,9 @@ dialog.lightbox::backdrop { background: rgba(10, 11, 14, .82); }
   .md > :is(.mmd, .pf-figure) { width: fit-content !important; }
   pre, .table-wrap, .mmd, .mermaid, .pf-figure, blockquote, tr, img { break-inside: avoid; }
   h2, h3, h4 { break-after: avoid; }
-  /* .fade-r(화면용 흐림 mask)이 인쇄에 남으면 코드가 그림으로 바뀌고 글자가 두 번 들어감(시안 검증에서 발견) → 인쇄에서 mask를 끔 */
-  .md pre, .md pre.fade-r { white-space: pre-wrap; overflow: visible; background: #F6F8FA; border: 1px solid #D8DEE4; -webkit-mask-image: none; mask-image: none; }
+  .md pre, .md pre.fade-r { white-space: pre-wrap; overflow: visible; background: #F6F8FA; border: 1px solid #D8DEE4; }
   .md pre code, .md pre code.hljs { white-space: pre-wrap; word-break: break-all; width: auto; min-width: 0; font-size: 8.5pt; color: #24292E; padding: 8pt 10pt; }
-  /* 화면 규칙(.md > :is(pre, .table-wrap)·.table-wrap의 overflow-x:auto)과 구체성이 같거나 높고 뒤에 와서 이김 — 목록·인용 안의 표도 */
-  .md > :is(pre, .table-wrap), .md .table-wrap { overflow: visible; }
+  .md .table-wrap { overflow: visible; }
   .md table { font-size: 9pt; }
   /* 칸은 낱말 단위로 줄바꿈(짧은 한글 낱말을 끊지 않음). 낱말 단위로는 A4 글줄에 안 들어가는 표(doc.js ⑥-2가 .print-wide로 표시)만
      아무 곳에서나 줄바꿈해 오른쪽이 잘리지 않게. 표 규칙을 바꾸면 맨 아래 .md.print-probe도 같이 바꿈 */

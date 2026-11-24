@@ -1,26 +1,703 @@
-<!DOCTYPE html>
-<html lang="ko">
+<!doctype html>
+<html lang="ko" data-theme="dark">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>포트폴리오</title>
-<link rel="icon" href="data:," /><!-- 아이콘 파일 없음: 브라우저가 /favicon.ico를 요청해 404가 나지 않게 -->
-<!-- 고정 렌더러 — 포트폴리오 페이지(아래로 읽는 한 페이지, A4 인쇄 = 제출 PDF). 내용은 data/portfolio.json · data/projects/*.json에서 읽습니다. 이 파일은 고치지 않아도 됩니다.
-     주소: #<절 id>(cover · intro · stack · p-<폴더> · p-<폴더>-core · glance · contact). 예전 포트폴리오 슬라이드 주소(#s=<장면 id> · #<번호>)는 같은 절로 넘어갑니다.
-     슬라이드는 project.html?p=<폴더>, 프로젝트 상세 문서는 doc.html?p=<폴더>. CDN은 버전 고정(Pretendard v1.3.9, Montserrat 5.2.8 — 영문 라벨, D2Coding 1.3.2) -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/montserrat@5.2.8/latin-700.css" />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/montserrat@5.2.8/latin-800.css" />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/d2coding@1.3.2/d2coding-subset.css" />
-<link rel="stylesheet" href="assets/portfolio.css" />
-<link rel="stylesheet" href="theme/theme.css" /><!-- 테마(색·모양·영문 글꼴): /portfolio-theme가 씀. /portfolio-update가 건드리지 않음 -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <title>포트폴리오</title>
+  <link rel="icon" href="data:,">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+  <link rel="stylesheet" href="./theme/theme.css">
+  <script>
+    try {
+      if (localStorage.getItem('portfolio-color-mode') === 'light') document.documentElement.dataset.theme = 'light';
+    } catch {}
+  </script>
+  <style>
+    :root {
+      color-scheme: dark;
+      --theme-blue: var(--t-accent, #2f6feb);
+      --theme-purple: var(--t-accent-2, #8c2feb);
+      --bg: var(--t-bg, #0a0a0d);
+      --panel: var(--t-surface, #131318);
+      --stack-bg: #191e26;
+      --frame: var(--panel);
+      --text: var(--t-ink, #f4f4f6);
+      --muted: var(--t-body, #bdbdc7);
+      --line: var(--t-line, #24242c);
+      --accent: color-mix(in srgb, var(--theme-blue) 64%, #fff);
+      --header: color-mix(in srgb, var(--bg) 94%, transparent);
+      --hero-bg: radial-gradient(44% 36% at 79% 64%, color-mix(in srgb, var(--theme-purple) calc(10% * var(--t-glow, 1)), transparent), transparent 80%),
+                 radial-gradient(42% 35% at 22% 64%, color-mix(in srgb, var(--theme-blue) calc(9% * var(--t-glow, 1)), transparent), transparent 80%);
+      --inset: clamp(1.25rem, 4.5vw, 5.25rem);
+      --hero-inset: clamp(1rem, 2.2vw, 4.25rem);
+      --bar-height: 3.75rem;
+    }
+    :root[data-theme="light"] {
+      color-scheme: light;
+      --bg: #f8f6f1;
+      --panel: #fffdf9;
+      --stack-bg: #edf0f4;
+      --frame: #e9e5dc;
+      --text: #23211e;
+      --muted: #5d574f;
+      --line: #d8d2c8;
+      --accent: #2456bd;
+      --header: #f8f6f1f2;
+      --hero-bg: none;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 1rem/1.65 Pretendard, "Malgun Gothic", sans-serif; }
+    a { color: inherit; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 5px; }
+    button, input, textarea { font: inherit; }
+    p { margin: 0; }
+    [id] { scroll-margin-top: calc(var(--bar-height) + 1.25rem); }
+    .hero .wrap { width: calc(100% - 2 * var(--hero-inset)); margin-inline: auto; }
+    .body-wrap { width: min(100% - 2 * var(--inset), 73rem); margin-inline: auto; }
+    .skip-link { position: fixed; top: 0.75rem; left: 1rem; z-index: 30; padding: 0.5rem 0.8rem; background: var(--panel); transform: translateY(-140%); }
+    .skip-link:focus { transform: none; }
+    .section { padding-block: clamp(3.5rem, 8vw, 7rem); border-top: 1px solid var(--line); }
+    .section-title { margin: 0; font-size: clamp(2.2rem, 4.2vw, 4rem); font-weight: 720; line-height: 1.06; letter-spacing: -0.06em; }
+    .text-link { display: inline-flex; width: fit-content; align-items: baseline; gap: 0.35rem; color: var(--accent); font-weight: 650; text-decoration: underline; text-underline-offset: 0.24em; text-decoration-color: color-mix(in srgb, var(--accent), transparent 55%); }
+    .text-link:hover { text-decoration-color: currentColor; }
+    .mode { display: inline-flex; cursor: pointer; align-items: center; gap: 0.45rem; padding: 0.32rem 0.68rem; border: 1px solid var(--line); border-radius: var(--t-pill, 999px); background: var(--bg); color: var(--muted); font-size: 0.8rem; white-space: nowrap; }
+    .mode:hover { border-color: var(--accent); color: var(--text); }
+    .mode-mark { width: 0.72rem; height: 0.72rem; display: inline-block; border: 1px solid currentColor; border-radius: 50%; background: linear-gradient(90deg, currentColor 50%, transparent 50%); }
+    .hero { position: relative; display: grid; grid-template-rows: 1fr auto; align-items: center; min-height: 100svh; gap: clamp(0.85rem, 2.2svh, 1.6rem); padding: clamp(4.5rem, 8svh, 7rem) 0 clamp(0.75rem, 2.25svh, 1.6rem); background: var(--hero-bg); }
+    .hero-utilities { position: absolute; inset: 1.4rem 0 auto; display: flex; justify-content: flex-end; }
+    .hero-copy { margin-bottom: clamp(2rem, 5.4svh, 4.25rem); }
+    .hero-label { margin-bottom: 0.9rem; color: var(--accent); font-size: 0.82rem; font-weight: 750; letter-spacing: 0.15em; }
+    .hero-copy h1 { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.3rem clamp(0.75rem, 1.6vw, 1.65rem); margin: 0; font-size: clamp(3.6rem, 7vw, 7rem); font-weight: 760; line-height: 1.04; letter-spacing: -0.064em; }
+    .hero-name-en { font-size: clamp(0.82rem, 1.2vw, 1.12rem); font-weight: 650; letter-spacing: 0.12em; opacity: 0.58; white-space: nowrap; }
+    :root[data-theme="light"] .hero-name-en { opacity: 0.72; }
+    .headline { max-width: 37rem; margin: 0.95rem 0 0; font-size: clamp(1.12rem, 1.9vw, 1.75rem); font-weight: 580; line-height: 1.4; letter-spacing: -0.036em; word-break: keep-all; }
+    .hero-links { position: relative; inset-block-start: 0.85rem; display: inline-flex; gap: 0.2rem; margin-top: 0.95rem; padding: 0.22rem; border: 1px solid var(--line); border-radius: 999px; background: var(--panel); }
+    .hero-link { display: inline-flex; align-items: center; gap: 0.32rem; min-height: 2rem; padding: 0.26rem 0.72rem; border-radius: 999px; color: var(--text); font-size: 0.86rem; font-weight: 650; text-decoration: none; }
+    .hero-link:hover { background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent); }
+    .hero-link-primary { background: var(--theme-blue); color: #fff; }
+    .hero-link-primary:hover { background: color-mix(in srgb, var(--theme-blue), #000 12%); color: #fff; }
+    .gallery { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(0.6rem, 0.95vw, 1.25rem); }
+    .scroll-link { display: inline-grid; justify-self: center; justify-items: center; gap: 0.38rem; min-height: 2.75rem; padding: 0.25rem 0.75rem; color: var(--muted); font-size: 0.72rem; font-weight: 640; letter-spacing: 0.14em; text-decoration: none; }
+    .scroll-link:hover, .scroll-link:focus-visible { color: var(--accent); }
+    .scroll-chevron { width: 0.55rem; height: 0.55rem; border: solid currentColor; border-width: 0 1.5px 1.5px 0; transform: rotate(45deg); }
+    .cover-card { --cover-tint: 26 36 53; display: block; min-width: 0; border-radius: 12px; text-decoration: none; align-self: start; }
+    .cover-card[data-project="1-re-genesis"] { --cover-tint: 104 14 27; }
+    .cover-card[data-project="2-attack-roguelike"] { --cover-tint: 59 27 108; }
+    .cover-card[data-project="4-ar-room"] { --cover-tint: 21 54 103; }
+    .cover-card[data-project="3-hypercasual"] { --cover-tint: 112 61 13; }
+    .cover-media { position: relative; container-type: inline-size; overflow: hidden; aspect-ratio: 4 / 3; border: 1px solid var(--line); border-radius: inherit; background: var(--frame); }
+    .cover-media img, .project-media img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    .cover-cta { position: absolute; inset: 0; display: grid; place-items: center; background: rgb(var(--cover-tint) / 83%); color: #fff; opacity: 0; pointer-events: none; transition: opacity 250ms ease; }
+    .cover-title { position: absolute; inset-inline: clamp(0.65rem, 5cqi, 1.65rem); inset-block-end: clamp(0.65rem, 5cqi, 1.65rem); color: rgb(255 255 255 / 45%); font-size: clamp(1rem, 9cqi, 3.5rem); font-weight: 800; line-height: 0.98; letter-spacing: -0.045em; text-transform: uppercase; overflow-wrap: anywhere; }
+    .cover-action { position: relative; font-size: 0.96rem; font-weight: 700; letter-spacing: -0.02em; }
+    .cover-card:focus-visible .cover-cta { opacity: 1; }
+    @media (hover: hover) {
+      .cover-card:hover .cover-cta { opacity: 1; }
+    }
+    .cover-card[data-project="1-re-genesis"] img { object-position: 6% 50%; }
+    .nav { position: fixed; inset: 0 0 auto; z-index: 10; visibility: hidden; transform: translateY(-100%); border-bottom: 1px solid var(--line); background: var(--header); backdrop-filter: blur(12px); transition: transform 160ms ease, visibility 160ms; }
+    .nav[data-visible="true"] { visibility: visible; transform: translateY(0); }
+    .nav-inner { min-height: var(--bar-height); display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+    .nav-name { font-weight: 740; text-decoration: none; white-space: nowrap; }
+    .nav-menu { display: flex; align-items: center; gap: clamp(0.65rem, 2.3vw, 1.9rem); }
+    .nav-section { color: var(--muted); font-size: 0.88rem; text-decoration: none; text-underline-offset: 0.55em; white-space: nowrap; }
+    .nav-section:hover, .nav-section[aria-current="location"] { color: var(--text); }
+    .nav-section[aria-current="location"] { text-decoration: underline 2px var(--accent); }
+    .about-section { border-top: 0; padding-block: clamp(1.5rem, 3.6vw, 3.5rem) clamp(1.25rem, 3vw, 2.5rem); }
+    .about-body { max-width: 49rem; margin-top: clamp(1.25rem, 2.5vw, 2rem); color: var(--muted); line-height: 1.8; word-break: keep-all; }
+    .about-body p + p { margin-top: 0.75rem; }
+    .about-section .action-link { margin-top: 1.5rem; }
+    .experience-section { border-top: 0; padding-block: clamp(2.5rem, 5vw, 4.5rem) clamp(1.5rem, 3.2vw, 3.25rem); }
+    .experience-entry { display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.65fr); gap: 1.5rem clamp(2rem, 6vw, 6rem); align-items: start; margin-top: clamp(1.6rem, 4vw, 3rem); }
+    .experience-company { margin: 0.4rem 0 0; font-size: clamp(1.15rem, 1.8vw, 1.5rem); font-weight: 650; line-height: 1.25; letter-spacing: -0.025em; }
+    .experience-dates { color: var(--accent); font-size: 0.87rem; font-weight: 650; font-variant-numeric: tabular-nums; }
+    .experience-role { margin-top: 0.55rem; font-size: 1.02rem; font-weight: 620; word-break: keep-all; }
+    .experience-summary { margin-bottom: 1.15rem; font-size: clamp(1.06rem, 1.7vw, 1.32rem); font-weight: 650; line-height: 1.45; letter-spacing: -0.028em; word-break: keep-all; }
+    .experience-duty { padding-block: 0.95rem; border-top: 1px solid var(--line); }
+    .experience-duty h4 { margin: 0 0 0.3rem; font-size: 1rem; font-weight: 680; }
+    .experience-duty p { color: var(--muted); font-size: 0.94rem; line-height: 1.7; word-break: keep-all; }
+    .experience-duty p + p { margin-top: 0.28rem; }
+    .stack-section { border-top: 0; padding-block: clamp(1.75rem, 3.2vw, 3rem) clamp(2rem, 3.4vw, 3.25rem); background: var(--stack-bg); }
+    .stack-section + .section { border-top: 0; }
+    .skills, .tool-groups { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: clamp(0.85rem, 2vw, 1.75rem); max-width: 63rem; }
+    .skills { row-gap: 1.35rem; margin-top: clamp(1.15rem, 2.2vw, 1.85rem); }
+    .skill-icon { display: block; width: 1.625rem; height: 1.625rem; color: var(--text); }
+    .skill .skill-icon { margin-bottom: 0.42rem; }
+    .skill-name { margin: 0 0 0.3rem; font-size: 1.24rem; font-weight: 680; letter-spacing: -0.025em; }
+    .skill-evidence { margin: 0; padding: 0; list-style: none; }
+    .skill-evidence li { margin-top: 0.22rem; color: var(--muted); font-size: 0.94rem; line-height: 1.55; word-break: keep-all; }
+    .evidence { text-decoration: none; }
+    .evidence:hover { color: var(--text); text-decoration: underline; text-underline-offset: 0.25em; }
+    .skill-group, .tool-groups { margin-top: clamp(1.5rem, 2.7vw, 2.35rem); }
+    .skill-group-title { margin: 0; font-size: 1.1rem; font-weight: 670; letter-spacing: -0.02em; }
+    .skill-group .skills { margin-top: 0.7rem; }
+    .tool-groups { row-gap: 1rem; }
+    .tool-group .skill-group-title { font-size: 0.92rem; }
+    .tool-list { display: flex; flex-wrap: wrap; gap: 0.55rem clamp(0.45rem, 0.9vw, 0.72rem); margin: 0.5rem 0 0; padding: 0; list-style: none; }
+    .tool-list li { display: grid; grid-template-columns: minmax(0, 1fr); justify-items: center; gap: 0.3rem; width: 2.45rem; font-size: 0.8rem; white-space: nowrap; }
+    .tool-group:first-child .tool-list li { width: 3rem; }
+    .tool-list .skill-icon { width: 1.15rem; height: 1.15rem; }
+    .projects-section { padding-block: 0; }
+    .project-list-heading { padding-block: clamp(2rem, 5vw, 4rem) clamp(1.25rem, 2.5vw, 2rem); }
+    .project { display: grid; align-content: center; min-height: calc(100dvh - var(--bar-height)); padding-block: clamp(1.4rem, 4svh, 3.25rem); scroll-margin-top: calc(var(--bar-height) + 1px); }
+    .project:nth-child(odd) { background: color-mix(in srgb, var(--stack-bg) 42%, var(--bg)); }
+    .project-layout:has(.project-media) { display: grid; grid-template: "heading media" auto "info media" 1fr / minmax(0, 1fr) minmax(0, 1.38fr); gap: 1rem clamp(1.6rem, 4.5vw, 4rem); }
+    .project-heading { grid-area: heading; }
+    .project-overview { grid-area: info; }
+    .project-media { grid-area: media; align-self: center; aspect-ratio: 16 / 10; overflow: hidden; border-radius: 10px; background: var(--frame); }
+    .project-media img { object-fit: contain; }
+    .project-media .project-art { object-fit: cover; }
+    .project[id="p-1-re-genesis"] .project-art { object-position: 6% 50%; }
+    .project-title { margin: 0; font-size: clamp(2rem, 3.55vw, 3.65rem); line-height: 1.08; font-weight: 720; letter-spacing: -0.052em; overflow-wrap: anywhere; }
+    .project-lead { margin-top: 0.65rem; color: var(--muted); word-break: keep-all; }
+    .project-info { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: baseline; gap: 0.3rem 0.9rem; margin: 0.3rem 0 0; font-size: 0.91rem; }
+    .project-info div { display: contents; }
+    .project-info dt { color: var(--muted); white-space: nowrap; }
+    .project-info dd { margin: 0; word-break: keep-all; overflow-wrap: anywhere; }
+    .project-tags { display: flex; flex-wrap: wrap; gap: 0.35rem 0.42rem; margin: 0.85rem 0 0; padding: 0; list-style: none; }
+    .project-tags li { padding: 0.19rem 0.6rem; border-radius: var(--t-pill, 999px); background: color-mix(in srgb, var(--text) 8%, transparent); font-size: 0.78rem; font-weight: 630; line-height: 1.45; }
+    .project-intent { margin-top: 1rem; color: var(--muted); font-size: 0.93rem; word-break: keep-all; }
+    .project-summary { max-width: 53rem; margin-top: clamp(1.15rem, 3svh, 2rem); color: var(--muted); font-size: 0.93rem; word-break: keep-all; }
+    .project-summary h4 { margin: 0 0 0.4rem; color: var(--accent); font-size: 0.86rem; font-weight: 700; }
+    .project-summary p + p { margin-top: 0.35rem; }
+    .feature + .feature { margin-top: 1.2rem; }
+    .feature h4 { margin: 0 0 0.2rem; font-size: 1rem; line-height: 1.35; }
+    .feature p { color: var(--muted); font-size: 0.93rem; }
+    .feature p + p { margin-top: 0.32rem; }
+    .project-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-top: 1.15rem; }
+    .project-tags + .project-actions { margin-top: calc(1.15rem + 14px); }
+    .action-link {
+      display: inline-flex; align-items: center; justify-content: space-between; gap: 0.55rem;
+      min-height: 2.5rem; padding: 0.4rem 0.72rem; border: 1px solid var(--line); border-radius: 4px;
+      background: var(--panel); color: var(--text); font-size: 0.88rem; font-weight: 650;
+      line-height: 1.25; text-decoration: none; white-space: nowrap;
+      transition: background-color 160ms ease, color 160ms ease;
+    }
+    .action-link-primary { background: var(--theme-blue); border-color: transparent; color: #000; }
+    .action-link::after {
+      content: ""; flex: none; inline-size: 0.46rem; block-size: 0.46rem;
+      border: solid currentColor; border-width: 0 2px 2px 0; transform: rotate(-45deg);
+    }
+    .action-link:is(:hover, :focus-visible) { background: #fff; color: #000; }
+    .action-link:focus-visible { outline-offset: 2px; }
+    .project-details { margin-top: 0.85rem; }
+    .project-details summary { width: fit-content; cursor: pointer; color: var(--muted); font-size: 0.9rem; }
+    .project-details summary:hover { color: var(--text); }
+    .project-details-content { margin-top: 1.3rem; max-width: 54rem; }
+    .project-gameplay { margin: 1.3rem 0 0; }
+    .project-gameplay img { display: block; width: auto; max-width: 100%; max-height: 28rem; border-radius: 6px; }
+    .contact { display: grid; grid-template-columns: minmax(0, 0.75fr) minmax(0, 1fr); gap: clamp(1.5rem, 5.5vw, 6rem); align-items: start; }
+    .contact-links { display: flex; flex-wrap: wrap; gap: 0.5rem 1.15rem; margin-top: 1.1rem; overflow-wrap: anywhere; }
+    .contact-form { padding: clamp(1rem, 3vw, 1.75rem); border: 1px solid var(--line); border-radius: 6px; background: var(--panel); }
+    .form-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.9rem 0.85rem; }
+    .form-fields label { display: grid; gap: 0.3rem; font-size: 0.88rem; font-weight: 610; }
+    .form-fields .message { grid-column: 1 / -1; }
+    .form-fields input, .form-fields textarea { width: 100%; min-width: 0; border: 1px solid var(--line); border-radius: 4px; padding: 0.55rem 0.65rem; background: var(--bg); color: var(--text); font-size: 0.93rem; }
+    .form-fields textarea { resize: vertical; min-height: 7rem; }
+    .form-actions { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.55rem; margin-top: 0.85rem; }
+    .form-actions p { color: var(--muted); font-size: 0.8rem; }
+    .form-actions button { cursor: pointer; border: 1px solid var(--accent); border-radius: 4px; padding: 0.45rem 0.8rem; background: transparent; color: var(--accent); font-weight: 680; font-size: 0.91rem; }
+    .form-actions button:hover { background: var(--accent); color: var(--bg); }
+    .status { min-height: 100svh; display: grid; place-items: center; text-align: center; color: var(--muted); }
+    .status .text-link { margin-top: 0.75rem; }
+    @media (min-width: 1000px) and (min-height: 840px) {
+      .project-media { aspect-ratio: 4 / 3; }
+    }
+    @media (max-width: 760px) {
+      :root { --bar-height: 3.4rem; }
+      .hero-copy h1 { font-size: clamp(3.4rem, 12vw, 5.5rem); }
+      .headline { max-width: 22rem; }
+      .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.95rem 0.72rem; }
+      .experience-entry, .contact { grid-template-columns: 1fr; }
+      .project { padding-block: 1.25rem; }
+      .project-layout:has(.project-media) { grid-template: "heading" "media" "info" / minmax(0, 1fr); gap: 0.8rem; }
+      .project-info { font-size: 0.86rem; }
+      .skills, .tool-groups { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .tool-group:last-child { grid-column: 1 / -1; }
+      .nav-inner { gap: 0.7rem; }
+      .nav-menu { gap: clamp(0.45rem, 2vw, 0.8rem); }
+      .nav-section { font-size: 0.78rem; }
+      .nav .mode { padding: 0.44rem; }
+      .nav .mode-label { display: none; }
+    }
+    @media (max-width: 380px) {
+      .nav-inner { width: calc(100% - 1.5rem); }
+      .nav-name { font-size: 0.84rem; }
+      .form-fields { grid-template-columns: 1fr; }
+    }
+    @media screen and (min-width: 761px) and (prefers-reduced-motion: no-preference) {
+      @keyframes rise-in {
+        from { opacity: 0; translate: 0 24px; }
+      }
+      .reveal-pending:not(:focus-within) { opacity: 0; }
+      .revealed { animation: rise-in 700ms ease-out; }
+
+      @keyframes capsule-open {
+        0% { opacity: 0; translate: 0 18px; }
+        35% { opacity: 1; translate: 0 0; }
+        0%, 35% { clip-path: inset(0 max(0px, calc(100% - 2.5rem)) 0 0 round 999px); }
+        100% { clip-path: inset(0 round 999px); }
+      }
+      @keyframes capsule-labels-in {
+        from { opacity: 0; }
+      }
+      .hero-links {
+        animation: capsule-open 720ms cubic-bezier(0.2, 0.65, 0.25, 1) 300ms backwards;
+      }
+      .hero-links .hero-link { animation: capsule-labels-in 260ms ease-out 680ms backwards; }
+      .hero-links:focus-within, .hero-links:focus-within .hero-link { animation-delay: -1s; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition-duration: 0.01ms !important; }
+    }
+  </style>
+  <script src="https://cdn.tailwindcss.com/3.4.5"></script>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js"></script>
+  <script src="./assets/strings.js"></script>
 </head>
 <body>
-<a class="skip-link" href="#main">본문으로 건너뛰기</a>
-<div id="app"><p class="loading">불러오는 중…</p></div>
-<noscript><div class="notice"><h1>JavaScript를 켜 주세요</h1><p>이 포트폴리오는 data/의 내용을 읽어 브라우저에서 그립니다. JavaScript를 켠 뒤 다시 열어 주세요.</p></div></noscript>
-<script src="assets/strings.js"></script><!-- UI 문구 표(기본 문구) + theme/strings.tsv(내 문구) 읽기. common.js보다 먼저 -->
-<script src="assets/common.js"></script>
-<script src="assets/portfolio.js"></script>
+  <div id="app"><p class="status" role="status">포트폴리오를 불러오는 중입니다.</p></div>
+  <script type="text/babel" data-presets="react">
+    const { useEffect, useLayoutEffect, useRef, useState } = React;
+    const headline = '조작과 게임 흐름을 구현하는 Unity 클라이언트 개발자';
+    const libraryNames = ['AR Foundation', 'Firebase', 'DOTween'];
+    const toolGroups = [
+      { title: '플랫폼', names: ['Android', 'Windows'] },
+      { title: '개발·협업 도구', names: ['Git', 'GitHub', 'Rider'] },
+      { title: 'AI 도구', names: ['Codex', 'Gemini', 'Claude', 'Cursor'] },
+    ];
+    const skillIcons = {
+      Unity: 'unity', 'C#': 'code', '데이터 처리': 'database',
+      'AR Foundation': 'ar', Firebase: 'firebase', DOTween: 'tween',
+      Android: 'android', Windows: 'windows',
+      Git: 'git', GitHub: 'github', Rider: 'rider',
+      Codex: 'terminal', Gemini: 'googlegemini', Claude: 'claude', Cursor: 'cursor',
+    };
+    const sectionIds = ['intro', 'experience', 'stack', 'projects', 'contact'];
+    const galleryImages = {
+      '1-re-genesis': 'images/title-card.png',
+      '2-attack-roguelike': 'images/title-card.png',
+      '4-ar-room': 'images/title-card.png',
+      '3-hypercasual': 'images/title-card.png',
+    };
+    const projectImplementations = {
+      '1-re-genesis': '아이템·레시피 임포터, 인벤토리, 그리드 건설·배치 프리뷰, 직선·곡선 컨베이어, 퀘스트',
+      '2-attack-roguelike': 'Raycast 이동·충돌, 2단 점프·대시, 지상 2연타·공중 공격, 히트스톱·넉백·피격 효과, 적 FSM, 스테이지 진행·재도전',
+      '4-ar-room': 'AR 평면 스캔, 게임 상태·화면 전환, 청소 판정·물 자원, Firebase 연동·랭킹',
+      '3-hypercasual': '채굴·적재·가공·납품, 보상·업그레이드, NPC 생성·구역 해금, 오브젝트 풀링, 카메라 연출',
+    };
+    const projectShowcases = {
+      '1-re-genesis': {
+        tags: ['ScriptableObject', 'CSV·TSV 임포트', '그리드 스냅', '진행도 기반 물류', 'JSON 저장', 'C# 이벤트'],
+        overview: '황폐해진 행성에서 퀘스트로 레시피를 해금하고, 자원 가공을 자동화해 제네시스 시스템을 복구하는 3D 생존 게임입니다.',
+        focus: '직선과 곡선에서 같은 규칙으로 아이템을 옮기는 데 집중했습니다. 간격과 전달 시점은 이동 진행도로 판단하고, 곡선에서는 진행도를 각도로 바꿔 원호 위의 위치를 계산했습니다.',
+      },
+      '2-attack-roguelike': {
+        tags: ['Physics2D.Raycast', 'Animation Event', '코루틴 FSM', 'C# 이벤트', 'Hit Stop', 'Tilemap'],
+        overview: 'Skul에서 영감을 받은 2D 액션 플랫포머입니다. 점프와 대시로 공격을 피하고, 지상 콤보와 공중 공격으로 스테이지의 적을 모두 처치해 다음 구역을 엽니다.',
+        focus: '이동 거리를 직접 계산해 벽과 바닥에서 멈추는 위치를 조정했습니다. 애니메이션의 타격 프레임에 공격을 판정하고, 적중 순간에 히트스톱·피격 효과·넉백을 연결했습니다.',
+      },
+      '4-ar-room': {
+        tags: ['AR Foundation', 'AABB', '상태 패턴', '틱 기반 판정', 'Firebase·Firestore', 'UniTask'],
+        overview: '스마트폰으로 내 방을 스캔하고, 제한 시간 안에 가상의 물총으로 오염물을 청소하는 Android AR 게임입니다. 물이 떨어지면 방 안에 배치된 물탱크에서 채웁니다.',
+        focus: '잘게 감지된 평면을 묶어 청소를 시작할 시점을 판단하고, 물줄기가 닿는 동안 일정 간격으로 오염물 내구도를 깎도록 구현했습니다. Firebase 랭킹을 연동하고, 팀장·PM으로 일정과 기능 통합을 맡았습니다.',
+      },
+    };
+    const preferredFeatures = {
+      '1-re-genesis': '컨베이어 물류 설계',
+      '2-attack-roguelike': 'Raycast 기반 이동·충돌',
+      '4-ar-room': 'AR 스캔·청소 판정·물 자원',
+      '3-hypercasual': '채굴부터 납품까지',
+    };
+
+    function normalizeLink(value) {
+      try {
+        const url = new URL(value);
+        if (url.protocol === 'http:' || url.protocol === 'https:') return url.href;
+      } catch {}
+      return '';
+    }
+
+    function asset(project, relative) {
+      return './src/' + [project.id, ...relative.replace(/^\.\//, '').split('/')].map(encodeURIComponent).join('/');
+    }
+
+    function ExternalLink({ href, children, className = 'text-link', showArrow = true }) {
+      const url = normalizeLink(href);
+      return url && <a className={className} href={url} target="_blank" rel="noopener noreferrer">{children}{showArrow && <span aria-hidden="true">↗</span>}</a>;
+    }
+
+    function Inline({ value }) {
+      return String(value || '').split('`').map((part, index) =>
+        index % 2 ? <code key={index}>{part}</code> : part);
+    }
+
+    function ThemeButton({ mode, toggle }) {
+      const next = mode === 'dark' ? '라이트 모드' : '다크 모드';
+      return <button className="mode" type="button" aria-label={next + '로 전환'} onClick={toggle}>
+        <span className="mode-mark" aria-hidden="true"></span><span className="mode-label">{next}</span>
+      </button>;
+    }
+
+    function Hero({ profile, projects, theme, heroRef }) {
+      return <section id="cover" className="hero" ref={heroRef} aria-labelledby="hero-name">
+        <div className="wrap hero-utilities"><ThemeButton {...theme} /></div>
+        <div className="wrap">
+          <div className="hero-copy">
+            <p className="hero-label" lang="en">{PFStr.t('en.portfolio')}</p>
+            <h1 id="hero-name">
+              <span>{profile.name}</span>
+              {profile.nameEn && <span className="hero-name-en" lang="en">{profile.nameEn}</span>}
+            </h1>
+            <p className="headline">{headline}</p>
+            {(profile.github || profile.email) && <div className="hero-links" role="group" aria-label="연락 링크">
+              <ExternalLink className="hero-link hero-link-primary" href={profile.github}>GitHub</ExternalLink>
+              {profile.email && <a className="hero-link" href={'mailto:' + profile.email}>이메일</a>}
+            </div>}
+          </div>
+          <div className="gallery" aria-label="대표 프로젝트" data-reveal="">
+            {projects.map(project => {
+              const picture = galleryImages[project.id] || project.cover;
+              return picture && <a key={project.id} className="cover-card" href={'#p-' + project.id}
+                data-project={project.id} aria-label={project.title + ' 자세히 보기'}>
+                <div className="cover-media">
+                  <img src={asset(project, picture)} alt="" decoding="async" />
+                  <div className="cover-cta" aria-hidden="true">
+                    <span className="cover-title">{project.title}</span>
+                    <span className="cover-action">자세히 보기 ↘</span>
+                  </div>
+                </div>
+              </a>;
+            })}
+          </div>
+        </div>
+        <a className="scroll-link" href="#intro" aria-label="Scroll down · 자기소개로 이동">
+          <span lang="en">SCROLL DOWN</span>
+          <span className="scroll-chevron" aria-hidden="true"></span>
+        </a>
+      </section>;
+    }
+
+    function Navigation({ name, visible, active, theme, labels }) {
+      return <header className="nav" data-visible={visible} inert={visible ? undefined : ''}>
+        <nav className="body-wrap nav-inner" aria-label="페이지 메뉴">
+          <a className="nav-name" href="#cover">{name}</a>
+          <div className="nav-menu">
+            {labels.map(([id, label]) => <a className="nav-section" key={id} href={'#' + id}
+              aria-current={active === id ? 'location' : undefined}>{label}</a>)}
+            <ThemeButton {...theme} />
+          </div>
+        </nav>
+      </header>;
+    }
+
+    function About() {
+      return <section id="intro" className="section about-section" aria-labelledby="intro-title">
+        <div className="body-wrap" data-reveal="">
+          <h2 id="intro-title" className="section-title">자기소개</h2>
+          <div className="about-body">
+            <p>Unity와 C#으로 개인·팀 프로젝트를 개발했고, 슈퍼센트에서 모바일 게임 클라이언트 개발 인턴으로 일했습니다. 기존 코드의 호출 흐름과 데이터 구조를 파악해 새 기능을 연동하고, 코드 리뷰를 반영해 구현을 다듬었습니다.</p>
+            <p>핵심 조작과 게임 흐름은 작은 프로토타입으로 만들어 먼저 확인합니다. AI는 프로토타이핑과 반복 작업에 활용하고, 결과는 직접 검증합니다.</p>
+          </div>
+          <a className="action-link action-link-primary" href="./letter.html">자기소개서</a>
+        </div>
+      </section>;
+    }
+
+    function Experience() {
+      return <section id="experience" className="section experience-section" aria-labelledby="experience-title">
+        <div className="body-wrap" data-reveal="">
+          <h2 id="experience-title" className="section-title">경력</h2>
+          <article className="experience-entry" aria-labelledby="experience-company">
+            <div>
+              <p className="experience-dates"><time dateTime="2026-06">2026.06</time> – <time dateTime="2026-09">2026.09</time></p>
+              <h3 id="experience-company" className="experience-company">슈퍼센트(주)</h3>
+              <p className="experience-role">Unity 클라이언트 개발 인턴</p>
+            </div>
+            <div>
+              <p className="experience-summary">Unity와 C#으로 모바일 게임의 메타 콘텐츠와 UI를 개발했습니다.</p>
+              <div className="experience-duty">
+                <h4>오퍼 콘텐츠 구현</h4>
+                <p>오퍼 활성화 조건 판정부터 단계별 보상 관리, 팝업 노출, 구매와 보상 처리까지 구현했습니다.</p>
+              </div>
+              <div className="experience-duty">
+                <h4>구조 설계와 시스템 연동</h4>
+                <p>MVC 구조에서 Data, Controller, View의 역할을 나눠 기능을 개발했습니다.</p>
+                <p>이벤트로 시스템 간 의존성을 낮추고 기존 인앱 결제, 아이템 지급, 팝업 시스템 및 Remote Config를 연동했습니다.</p>
+              </div>
+              <div className="experience-duty">
+                <h4>코드 리뷰와 협업</h4>
+                <p>Cursor를 기능 구현과 코드 분석, 리팩터링에 활용했습니다. 코드 리뷰 피드백을 반영해 호출 구조를 개선하고 버그를 수정했습니다.</p>
+                <p>Git으로 변경 이력을 관리하며 팀 개발에 참여했습니다.</p>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>;
+    }
+
+    function SkillIcon({ name }) {
+      return <svg className="skill-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <use href={'./custom/skill-icons.svg#' + (skillIcons[name] || 'code')} />
+      </svg>;
+    }
+
+    function SkillEvidence({ items, titles }) {
+      if (!items?.length) return null;
+      return <ul className="skill-evidence">{items.map((item, index) => <li key={index}>
+        {titles[item.project] ? <a className="evidence" title={titles[item.project]} href={'#p-' + item.project}><Inline value={item.text} /></a>
+          : <Inline value={item.text} />}
+      </li>)}</ul>;
+    }
+
+    function SkillCards({ items, titles, heading: Heading }) {
+      return <div className="skills">
+        {items.map(skill => <article key={skill.name} className="skill" data-reveal="">
+          <SkillIcon name={skill.name} />
+          <Heading className="skill-name">{skill.name}</Heading>
+          <SkillEvidence items={skill.evidence} titles={titles} />
+        </article>)}
+      </div>;
+    }
+
+    function Skills({ skills, projects }) {
+      const titles = Object.fromEntries(projects.map(project => [project.id, project.title]));
+      const byName = new Map(skills.map(skill => [skill.name, skill]));
+      const unityEvidence = byName.get('Unity')?.evidence || [];
+      const isArEvidence = item => !byName.has('AR Foundation') &&
+        item.project === '4-ar-room' && item.text.startsWith('AR Foundation ');
+      const mainSkills = skills.filter(skill => !libraryNames.includes(skill.name) && skill.name !== 'Git')
+        .map(skill => skill.name === 'Unity' ? { ...skill, evidence: unityEvidence.filter(item => !isArEvidence(item)) } : skill);
+      const arEvidence = unityEvidence.filter(isArEvidence);
+      const libraries = libraryNames.map(name => byName.get(name)).filter(Boolean);
+      if (arEvidence.length) {
+        libraries.unshift({ name: 'AR Foundation', evidence: arEvidence });
+      }
+      return <section id="stack" className="section stack-section" aria-labelledby="stack-title">
+        <div className="body-wrap">
+          <h2 id="stack-title" className="section-title">{PFStr.t('page.stack')}</h2>
+          <SkillCards items={mainSkills} titles={titles} heading="h3" />
+          {libraries.length > 0 && <section className="skill-group" aria-labelledby="library-title">
+            <h3 id="library-title" className="skill-group-title">라이브러리</h3>
+            <SkillCards items={libraries} titles={titles} heading="h4" />
+          </section>}
+          <div className="tool-groups" data-reveal="">
+            {toolGroups.map(({ title, names }) => <section className="tool-group" key={title}>
+              <h3 className="skill-group-title">{title}</h3>
+              <ul className="tool-list">
+                {names.map(name => <li key={name}><SkillIcon name={name} /><span>{name}</span></li>)}
+              </ul>
+            </section>)}
+          </div>
+        </div>
+      </section>;
+    }
+
+    function Feature({ feature }) {
+      return <div className="feature">
+        <h4>{feature.title}</h4>
+        {[feature.what, feature.how, feature.why].filter(Boolean).map((line, index) => <p key={index}><Inline value={line} /></p>)}
+      </div>;
+    }
+
+    function Project({ project }) {
+      const features = project.highlights || [];
+      const featured = features.find(feature => feature.title === preferredFeatures[project.id]) || features[0];
+      const remaining = features.filter(feature => feature !== featured);
+      const query = '?p=' + encodeURIComponent(project.id);
+      const intent = project.intent?.text;
+      const implementation = projectImplementations[project.id];
+      const showcase = projectShowcases[project.id];
+      const artwork = galleryImages[project.id];
+      const picture = artwork || project.cover;
+      const gameplay = artwork && project.cover && artwork !== project.cover;
+      return <article className="project" id={'p-' + project.id} aria-labelledby={'title-' + project.id}>
+        <div className="body-wrap">
+          <div className="project-layout">
+            <header className="project-heading">
+              <h3 className="project-title" id={'title-' + project.id}>{project.title}</h3>
+              {project.tagline && <p className="project-lead"><Inline value={project.tagline} /></p>}
+            </header>
+            {picture && <div className="project-media" data-reveal="">
+              <img className={artwork ? 'project-art' : undefined} src={asset(project, picture)}
+                alt={project.title + (artwork ? ' 타이틀 이미지' : ' 대표 화면')} loading="lazy" decoding="async" />
+            </div>}
+            <div className="project-overview" data-reveal="">
+              <dl className="project-info">
+                {(project.meta || []).map(({label, value}) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}
+                {(implementation || project.team?.role) && <div>
+                  <dt>{implementation ? '구현' : PFStr.t('name.role')}</dt>
+                  <dd><Inline value={implementation || project.team.role} /></dd>
+                </div>}
+              </dl>
+              {showcase && <ul className="project-tags" aria-label="사용 기술">
+                {showcase.tags.map(tag => <li key={tag}>{tag}</li>)}
+              </ul>}
+              {!showcase && intent && <p className="project-intent"><Inline value={intent} /></p>}
+              <div className="project-actions">
+                <ExternalLink href={project.links?.video} className="action-link action-link-primary" showArrow={false}>시연 영상</ExternalLink>
+                <a className="action-link action-link-primary" href={'./doc.html' + query}>{PFStr.t('name.doc-short')}</a>
+                <a className="action-link" href={'./project.html' + query}>{PFStr.t('name.deck')}</a>
+                <ExternalLink href={project.links?.github} className="action-link" showArrow={false}>GitHub</ExternalLink>
+                {project.links?.extra?.map(({label, url}) => <ExternalLink href={url} key={url} className="action-link" showArrow={false}>{label}</ExternalLink>)}
+              </div>
+            </div>
+          </div>
+          {showcase && <div className="project-summary" data-reveal="">
+            <h4>개발 초점</h4>
+            <p>{showcase.overview}</p>
+            <p>{showcase.focus}</p>
+          </div>}
+          {!showcase && (featured || gameplay) && <details className="project-details">
+            <summary>{gameplay ? '구현과 플레이 화면 보기' : '구현 기능 보기'}</summary>
+            <div className="project-details-content">
+              {featured && <Feature feature={featured} />}
+              {remaining.map(feature => <Feature key={feature.title} feature={feature} />)}
+              {gameplay && <figure className="project-gameplay">
+                <img src={asset(project, project.cover)} alt={project.title + ' 실제 플레이 화면'} loading="lazy" decoding="async" />
+              </figure>}
+            </div>
+          </details>}
+        </div>
+      </article>;
+    }
+
+    function Contact({ profile }) {
+      function composeMessage(event) {
+        event.preventDefault();
+        const fields = new FormData(event.currentTarget);
+        const name = fields.get('name').trim();
+        const reply = fields.get('reply').trim();
+        const message = fields.get('message').trim();
+        const subject = encodeURIComponent('포트폴리오 문의 — ' + name);
+        const body = encodeURIComponent('이름: ' + name + '\r\n회신 이메일: ' + reply + '\r\n\r\n' + message);
+        window.location.href = 'mailto:' + profile.email + '?subject=' + subject + '&body=' + body;
+      }
+      return <footer id="contact" className="section" aria-labelledby="contact-title">
+        <div className="body-wrap contact" data-reveal="">
+          <div>
+            <h2 id="contact-title" className="section-title">Contact</h2>
+            <div className="contact-links">
+              {profile.email && <a className="text-link" href={'mailto:' + profile.email}>{profile.email}</a>}
+              <ExternalLink href={profile.github}>GitHub</ExternalLink>
+            </div>
+          </div>
+          {profile.email && <form className="contact-form" onSubmit={composeMessage} aria-label="이메일 작성">
+            <div className="form-fields">
+              <label>이름 또는 회사명<input name="name" autoComplete="name" maxLength="100" required /></label>
+              <label>회신 이메일<input name="reply" type="email" autoComplete="email" maxLength="254" required /></label>
+              <label className="message">메시지<textarea name="message" rows="4" maxLength="1200" required /></label>
+            </div>
+            <div className="form-actions"><p>메일 앱에서 내용을 확인하고 보낼 수 있습니다.</p><button type="submit">이메일 작성</button></div>
+          </form>}
+        </div>
+      </footer>;
+    }
+
+    function Portfolio({ data, projects }) {
+      const hero = useRef(null);
+      const [mode, setMode] = useState(document.documentElement.dataset.theme);
+      const [visible, setVisible] = useState(false);
+      const [active, setActive] = useState('');
+      const labels = sectionIds.map(id => [id, id === 'experience' ? '경력' : PFStr.t('page.nav-' + id)]);
+
+      useEffect(() => {
+        const sections = sectionIds.map(id => document.getElementById(id));
+        let frame = 0;
+        const update = () => {
+          frame = 0;
+          const heroBottom = hero.current.getBoundingClientRect().bottom;
+          const line = Math.min(window.innerHeight * 0.24, 180);
+          setVisible(heroBottom <= line);
+          const found = sections.findLast(section => section.getBoundingClientRect().top <= line);
+          const atBottom = window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 4;
+          setActive(atBottom ? 'contact' : found?.id || '');
+        };
+        const schedule = () => {
+          if (!frame) frame = requestAnimationFrame(update);
+        };
+        window.addEventListener('scroll', schedule, { passive: true });
+        window.addEventListener('resize', schedule);
+        let hash = window.location.hash.slice(1);
+        try { hash = decodeURIComponent(hash); } catch {}
+        document.getElementById(hash)?.scrollIntoView({ block: 'start', behavior: 'instant' });
+        update();
+        return () => {
+          cancelAnimationFrame(frame);
+          window.removeEventListener('scroll', schedule);
+          window.removeEventListener('resize', schedule);
+        };
+      }, []);
+
+      useLayoutEffect(() => {
+        if (!('IntersectionObserver' in window)) return;
+
+        const targets = document.querySelectorAll('[data-reveal]');
+        const observer = new IntersectionObserver(entries => {
+          for (const entry of entries) {
+            if (!entry.isIntersecting) continue;
+            entry.target.classList.replace('reveal-pending', 'revealed');
+            observer.unobserve(entry.target);
+          }
+        }, { rootMargin: '0px 0px -56px 0px' });
+
+        targets.forEach(target => {
+          target.classList.add('reveal-pending');
+          observer.observe(target);
+        });
+        return () => observer.disconnect();
+      }, []);
+
+      function toggleTheme() {
+        const selected = mode === 'dark' ? 'light' : 'dark';
+        document.documentElement.dataset.theme = selected;
+        setMode(selected);
+        try { localStorage.setItem('portfolio-color-mode', selected); } catch {}
+      }
+
+      const theme = { mode, toggle: toggleTheme };
+      return <>
+        <a className="skip-link" href="#intro">본문으로 건너뛰기</a>
+        <Navigation name={data.profile.name} visible={visible} active={active} theme={theme} labels={labels} />
+        <main>
+          <Hero profile={data.profile} projects={projects} theme={theme} heroRef={hero} />
+          <About />
+          <Experience />
+          <Skills skills={data.skills || []} projects={projects} />
+          <section id="projects" className="section projects-section" aria-labelledby="project-list-title">
+            <div className="body-wrap project-list-heading" data-reveal="">
+              <h2 id="project-list-title" className="section-title">{PFStr.t('page.nav-projects')}</h2>
+            </div>
+            <div className="project-list">{projects.map(project => <Project project={project} key={project.id} />)}</div>
+          </section>
+        </main>
+        <Contact profile={data.profile} />
+      </>;
+    }
+
+    async function readJson(path) {
+      const response = await fetch(path, { cache: 'no-cache' });
+      if (!response.ok) throw new Error(path + ' HTTP ' + response.status);
+      return response.json();
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('app'));
+    Promise.all([readJson('./data/portfolio.json'), PFStr.load('./theme/strings.tsv')])
+      .then(async ([data]) => {
+        const projects = await Promise.all(data.projects.map(id => readJson('./data/projects/' + encodeURIComponent(id) + '.json')));
+        document.title = data.profile.name + ' · Unity 클라이언트 포트폴리오';
+        root.render(<Portfolio data={data} projects={projects} />);
+      })
+      .catch(error => {
+        console.error(error);
+        root.render(<div className="status"><div><p>포트폴리오를 불러오지 못했습니다.</p><a className="text-link" href="./classic.html">기본 포트폴리오 열기</a></div></div>);
+      });
+  </script>
 </body>
 </html>

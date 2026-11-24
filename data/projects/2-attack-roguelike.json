@@ -3,16 +3,16 @@
   "doc": "기술문서.md",
   "schemaVersion": 2,
   "title": "Attack-Roguelike",
-  "tagline": "빠른 이동과 콤보 전투로 적을 처치하는 2D 액션 플랫포머",
+  "tagline": "점프와 대시로 공격을 피하고, 지상 콤보와 공중 공격으로 스테이지를 돌파하는 2D 액션 플랫포머",
   "cover": "images/cover.png",
   "intent": {
-    "text": "이동·점프·대시와 콤보 공격의 조작감을 조정하는 데 집중했습니다. 이동 속도와 충돌 거리를 직접 제어하도록 Raycast 기반 이동을 구현했습니다.",
+    "text": "이동 거리와 충돌 위치를 직접 제어하고, 애니메이션의 타격 프레임에 맞춰 판정과 피격 연출을 실행했습니다.",
     "verbatim": false
   },
   "team": {
     "type": "solo",
     "size": "1인",
-    "role": "이동·충돌, 콤보 전투, 적 AI, 피격 효과와 스테이지 진행 개발"
+    "role": "이동·충돌, 2단 점프·대시, 지상 콤보·공중 공격, 피격 연출, 적 AI, 스테이지 진행과 재도전"
   },
   "meta": [
     {
@@ -33,12 +33,12 @@
     }
   ],
   "tags": [
-    "Unity 6.3",
-    "C#",
-    "RaycastHit2D",
-    "FSM",
+    "Physics2D.Raycast",
     "Animation Event",
-    "Hit Stop"
+    "코루틴 FSM",
+    "C# 이벤트",
+    "Hit Stop",
+    "Tilemap"
   ],
   "links": {
     "github": "https://github.com/Searabbit11/Attack-Roguelike",
@@ -71,7 +71,7 @@
       "title": "콤보와 타격 반응",
       "section": "3.2 콤보·대시와 타격 피드백",
       "what": "콤보 공격과 대시를 구현하고 타격 시 Hit Stop·넉백·피격 효과를 적용했습니다.",
-      "how": "Animation Event로 공격 판정 시점을 맞추고, 대시에는 쿨타임과 무적 시간을 적용합니다.",
+      "how": "Animation Event의 타격 프레임에서 적 목록을 순회해 거리로 판정합니다. 대시는 벽 검사와 쿨타임을 적용합니다.",
       "why": "공격이 적중했는지 시간 정지와 시각 효과, 넉백으로 보여줍니다.",
       "image": {
         "src": "images/cover.png",
@@ -87,7 +87,7 @@
       "title": "적 FSM과 스테이지 진행",
       "section": "3.3 적 FSM과 스테이지 진행",
       "what": "적이 거리와 공격 범위에 따라 행동하고, 모두 처치하면 다음 단계가 열립니다.",
-      "how": "상태별 코루틴을 실행하고, 사망 이벤트로 남은 적 수와 UI를 갱신합니다.",
+      "how": "거리별 상태 코루틴을 전환하고, 사망 알림으로 카운트를 줄여 UI 갱신과 출구 활성화를 순서대로 처리합니다.",
       "why": "적의 행동·피격 처리와 스테이지 진행을 나눠 관리했습니다.",
       "image": {
         "src": "images/enemy-flow.png",
@@ -107,7 +107,7 @@
       "problem": "벽에 밀착할 때 캐릭터가 미세하게 파고들거나 중력 처리와 겹쳐 떨리는 현상이 발생했습니다.",
       "cause": "충돌면까지의 거리를 그대로 이동량으로 사용해 벽과 맞닿는 경계에서 수치 오차가 발생했습니다.",
       "solution": "이동 거리를 충돌면까지의 거리에서 wallSkin을 뺀 값으로 제한했습니다. 이미 벽에 너무 가까우면 반대 방향으로 위치를 보정했습니다.",
-      "result": "플레이어와 적이 벽과 작은 간격을 유지하도록 충돌 처리를 수정했습니다.",
+      "result": "플레이어의 일반 이동과 대시, 적의 넉백에서 벽과 작은 간격을 유지하도록 수정했습니다.",
       "lesson": ""
     },
     {
@@ -118,6 +118,15 @@
       "solution": "EnemyHealth를 초기화할 때 sharedMaterial을 복제해 각 적의 SpriteRenderer에 할당했습니다.",
       "result": "공유 머티리얼 대신 적마다 별도의 머티리얼에서 피격 효과를 처리하도록 바꿨습니다.",
       "lesson": ""
+    },
+    {
+      "title": "타일맵 배치 전에 동선 그리기",
+      "section": "4.3 타일맵 배치 전에 동선 그리기",
+      "problem": "에디터에서 타일부터 배치해 전체 동선과 기믹 위치를 검토하기 어려웠습니다.",
+      "cause": "전체 구조를 정하기 전에 세부 배치부터 진행했습니다.",
+      "solution": "발판, 기믹, 이동 경로를 손으로 스케치한 뒤 Unity Tilemap에 배치했습니다.",
+      "result": "타일 배치를 시작하기 전에 맵 전체에서 이동 경로를 확인할 수 있었습니다.",
+      "lesson": "타일을 배치하기 전에 스케치로 동선을 확인합니다."
     }
   ],
   "screenshots": [
@@ -147,8 +156,12 @@
       "벽면 충돌을 보정하고, 피격 효과가 다른 적에게 번지던 머티리얼 문제를 수정했습니다.",
       "적의 사망에 따라 남은 적 수와 UI를 갱신하고 다음 스테이지를 열도록 했습니다."
     ],
-    "regrets": [],
-    "plans": []
+    "regrets": [
+      "플레이 중 폼을 바꾸는 기능까지 연결하지 못했습니다."
+    ],
+    "plans": [
+      "폼별 스탯·공격 판정·이펙트를 플레이 루프에 연결할 수 있도록 데이터를 먼저 설계합니다."
+    ]
   },
   "deck": {
     "chapters": [
@@ -209,8 +222,8 @@
         "points": [
           {
             "label": "구현",
-            "text": "스테이지의 적을 모두 처치하면 다음 단계가 열리고, Day가 지날수록 적이 강해집니다.",
-            "verbatim": true
+            "text": "적을 모두 처치하면 출구가 열립니다. 대응 타이밍을 익히도록 Day 기반의 전투와 재도전을 연결했습니다.",
+            "verbatim": false
           }
         ],
         "visuals": []
@@ -264,6 +277,37 @@
             "kind": "table",
             "n": 1,
             "fp": "구성요소|책임"
+          }
+        ]
+      },
+      {
+        "key": "architecture-class-map",
+        "chapter": "architecture",
+        "layout": "screens",
+        "tab": "구조",
+        "title": {
+          "text": "전투와 진행의 연결",
+          "verbatim": true
+        },
+        "lead": {
+          "text": "플레이어 공격에서 적 피격과 사망, 스테이지 진행과 처치 수 집계로 이어지는 원본 클래스 구조도입니다.",
+          "verbatim": false
+        },
+        "sectionPath": [
+          "2. 시스템 구조",
+          "2.1 전투와 진행의 연결"
+        ],
+        "points": [],
+        "visuals": [
+          {
+            "kind": "image",
+            "src": "images/class-structure.png",
+            "w": 1591,
+            "h": 1348,
+            "caption": {
+              "text": "기술문서에 그린 주요 클래스와 호출 관계",
+              "verbatim": true
+            }
           }
         ]
       },
@@ -344,8 +388,8 @@
           "verbatim": true
         },
         "lead": {
-          "text": "콤보 공격의 타격 시점은 Animation Event로 처리하고, 대시에는 쿨타임과 무적 시간을 적용했습니다.",
-          "verbatim": true
+          "text": "Animation Event에서 타격 대상을 판정하고, 적중하면 히트스톱과 피격 효과·넉백을 실행합니다.",
+          "verbatim": false
         },
         "sectionPath": [
           "3. 핵심 기능",
@@ -362,6 +406,37 @@
               "text": "콤보와 피격 효과",
               "verbatim": true
             }
+          }
+        ]
+      },
+      {
+        "key": "systems-hitbox-distance",
+        "chapter": "systems",
+        "layout": "full",
+        "tab": "구현",
+        "title": {
+          "text": "공격 프레임에서 타격 대상을 고르는 과정",
+          "verbatim": true
+        },
+        "lead": {
+          "text": "타격 시점의 적 목록을 스냅샷으로 만든 뒤 피격 기준점까지의 제곱 거리를 비교합니다.",
+          "verbatim": false
+        },
+        "sectionPath": [
+          "3. 핵심 기능",
+          "3.2 콤보·대시와 타격 피드백",
+          "공격 프레임에서 타격 대상을 고르는 과정"
+        ],
+        "points": [],
+        "visuals": [
+          {
+            "kind": "code",
+            "n": 1,
+            "fp": "var enemiesSnapshot = EnemyHealth.AllEnemies.ToArray();",
+            "lines": [
+              3,
+              21
+            ]
           }
         ]
       },
@@ -454,11 +529,22 @@
           },
           {
             "label": "결과",
-            "text": "플레이어와 적이 벽과 작은 간격을 유지하도록 충돌 처리를 수정했습니다.",
+            "text": "플레이어의 일반 이동과 대시, 적의 넉백에서 벽과 작은 간격을 유지하도록 수정했습니다.",
             "verbatim": true
           }
         ],
-        "visuals": []
+        "visuals": [
+          {
+            "kind": "image",
+            "src": "images/wall-dash.png",
+            "w": 334,
+            "h": 214,
+            "caption": {
+              "text": "벽 가까이에서 대시 이동을 확인한 장면",
+              "verbatim": true
+            }
+          }
+        ]
       },
       {
         "key": "issues-part-7-problem",
@@ -496,7 +582,18 @@
             "verbatim": true
           }
         ],
-        "visuals": []
+        "visuals": [
+          {
+            "kind": "image",
+            "src": "images/cover.png",
+            "w": 540,
+            "h": 358,
+            "caption": {
+              "text": "타격 시 적의 스프라이트가 하얗게 표시되는 장면",
+              "verbatim": true
+            }
+          }
+        ]
       },
       {
         "key": "issues-part-7-code-1",
@@ -518,6 +615,37 @@
             "kind": "code",
             "n": 1,
             "fp": "if (spriteRenderer != null)"
+          }
+        ]
+      },
+      {
+        "key": "issues-tilemap-sketch",
+        "chapter": "issues",
+        "layout": "screens",
+        "tab": "문제 해결",
+        "title": {
+          "text": "타일맵 배치 전에 동선 그리기",
+          "verbatim": true
+        },
+        "lead": {
+          "text": "레벨의 동선과 기믹을 손으로 먼저 그린 뒤 Unity Tilemap에 배치했습니다.",
+          "verbatim": false
+        },
+        "sectionPath": [
+          "4. 문제 해결",
+          "4.3 타일맵 배치 전에 동선 그리기"
+        ],
+        "points": [],
+        "visuals": [
+          {
+            "kind": "image",
+            "src": "images/level-sketch.png",
+            "w": 1844,
+            "h": 486,
+            "caption": {
+              "text": "발판 높이와 이동 경로, 기믹 위치를 먼저 그린 레벨 스케치",
+              "verbatim": true
+            }
           }
         ]
       },
